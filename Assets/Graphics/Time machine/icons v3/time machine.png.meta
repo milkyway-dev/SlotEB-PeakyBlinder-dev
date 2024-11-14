@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c7313105a45c848c0887edbc92f5fafd
+guid: 23ac3fd173f59467ebb3d7986530aa06
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -37,8 +37,8 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 0
-    wrapV: 0
+    wrapU: 1
+    wrapV: 1
     wrapW: 0
   nPOTScale: 0
   lightmap: 0
@@ -123,22 +123,22 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui bg 02_1
+      name: time machine_0
       rect:
         serializedVersion: 2
-        x: 968
-        y: 395
-        width: 311
-        height: 311
+        x: 12
+        y: 0
+        width: 274
+        height: 237
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6e6c853f2093b4d2f84aadfc44bdc148
-      internalID: 569799507
+      spriteID: 4eaf36f8159af442e9f2267a8eef9dcd
+      internalID: 1843573499
       vertices: []
       indices: 
       edges: []
@@ -154,8 +154,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      ui bg 02_0: -1050674896
-      ui bg 02_1: 569799507
+      time machine_0: 1843573499
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

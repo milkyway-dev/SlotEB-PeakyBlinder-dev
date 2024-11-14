@@ -122,29 +122,31 @@ public class SlotController : MonoBehaviour
             level = 0;
         Vector2 sizeDelta = mask_transform.sizeDelta;
 
-        sizeDelta.x = 5 * sizeDelta.y / (3 + level);
-        float reelWidth = sizeDelta.y / (3 + level);
-        float reelHeight = 15 * sizeDelta.y / (3 + level);
-        initialPos = -(reelWidth * (3 + (level - 1) * 0.5f));
+        float iconHeight = sizeDelta.y / (3 + level);
+        float iconWidth = iconHeight*1.25f;
+
+        sizeDelta.x = 5 * iconWidth;
+        float reelHeight = 15 * iconHeight;
+        initialPos = -(iconHeight * (3 + (level - 1) * 0.5f));
 
         mask_transform.DOSizeDelta(sizeDelta, 1f);
-        bg_transform.DOSizeDelta(new Vector2((sizeDelta.x * 1610) / 1325, bg_transform.sizeDelta.y), 1f);
+
 
         if (level == 0)
         {
-            sideBars[0].DOLocalMoveX(reelWidth * 2 + 30, 1f);
-            sideBars[1].DOLocalMoveX(-reelWidth * 2 - 30, 1f);
+            sideBars[0].DOLocalMoveX(iconWidth * 2 + 50, 1f);
+            sideBars[1].DOLocalMoveX(-iconWidth * 2 - 50, 1f);
         }
         else
         {
-            sideBars[0].DOLocalMoveX(reelWidth * 2 - (level > 1 ? (level + 1) * 10 : 10), 1f);
-            sideBars[1].DOLocalMoveX(-reelWidth * 2 + (level > 1 ? (level + 1) * 10 : 10), 1f);
+            sideBars[0].DOLocalMoveX(iconWidth * 2 -  (level - 1) * 15, 1f);
+            sideBars[1].DOLocalMoveX(-iconWidth * 2 + (level - 1) * 15, 1f);
         }
 
         for (int i = 0; i < Slot_Transform.Length; i++)
         {
             int index = i;
-            Slot_Transform[index].DOSizeDelta(new Vector2(reelWidth, reelHeight), 1f).OnUpdate(() =>
+            Slot_Transform[index].DOSizeDelta(new Vector2(iconWidth, reelHeight), 1f).OnUpdate(() =>
             {
 
                 LayoutRebuilder.ForceRebuildLayoutImmediate(Slot_Transform[index]);
@@ -153,7 +155,7 @@ public class SlotController : MonoBehaviour
         }
         for (int i = 0; i < Slot_Transform.Length; i++)
         {
-            Vector2 finalPos = new Vector2((i - Slot_Transform.Length / 2) * reelWidth, initialPos);
+            Vector2 finalPos = new Vector2((i - Slot_Transform.Length / 2) * iconWidth, initialPos);
             Slot_Transform[i].DOLocalMove(finalPos, 1);
         }
 

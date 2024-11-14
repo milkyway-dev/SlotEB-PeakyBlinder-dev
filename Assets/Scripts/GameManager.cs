@@ -101,18 +101,18 @@ public class GameManager : MonoBehaviour
         SetButton(allGambleButton, () => changeGambleType(true));
         SetButton(halfGambleButton, () => changeGambleType(false));
 
-        autoSpinDropDown.onValueChanged.AddListener((int index) =>
-        {
-            autoSpinCounter = index;
-            CalculateCost();
-        });
+        // autoSpinDropDown.onValueChanged.AddListener((int index) =>
+        // {
+        //     autoSpinCounter = index;
+        //     CalculateCost();
+        // });
 
-        betPerLineDropDown.onValueChanged.AddListener((int index) =>
-        {
-            betCounter = index;
-            betPerLine_text.text = socketController.socketModel.initGameData.Bets[betCounter].ToString();
-            CalculateCost();
-        });
+        // betPerLineDropDown.onValueChanged.AddListener((int index) =>
+        // {
+        //     betCounter = index;
+        //     betPerLine_text.text = socketController.socketModel.initGameData.Bets[betCounter].ToString();
+        //     CalculateCost();
+        // });
 
         SetButton(Turbo_button, ToggleTurbo);
 

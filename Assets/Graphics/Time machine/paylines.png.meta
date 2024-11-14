@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: c7313105a45c848c0887edbc92f5fafd
+guid: e7d23a477eddf4380acce719d7ca5f84
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -37,8 +37,8 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 0
-    wrapV: 0
+    wrapU: 1
+    wrapV: 1
     wrapW: 0
   nPOTScale: 0
   lightmap: 0
@@ -123,22 +123,85 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ui bg 02_1
+      name: paylines_0
       rect:
         serializedVersion: 2
-        x: 968
-        y: 395
-        width: 311
-        height: 311
+        x: 68
+        y: 281
+        width: 181
+        height: 140
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6e6c853f2093b4d2f84aadfc44bdc148
-      internalID: 569799507
+      spriteID: 4b944038bef7f4f1c817139afd295372
+      internalID: 1358028828
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: paylines_1
+      rect:
+        serializedVersion: 2
+        x: 328
+        y: 281
+        width: 181
+        height: 140
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4e8f90588d98a44de9f10fd496542a95
+      internalID: 1186864435
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: paylines_2
+      rect:
+        serializedVersion: 2
+        x: 585
+        y: 281
+        width: 183
+        height: 140
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: bfa8666fbecd64236a077cadb5a433c1
+      internalID: -316864351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: paylines_3
+      rect:
+        serializedVersion: 2
+        x: 325
+        y: 53
+        width: 180
+        height: 140
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 61b61352d83684f1da7e635eb626a174
+      internalID: -880070663
       vertices: []
       indices: 
       edges: []
@@ -154,8 +217,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      ui bg 02_0: -1050674896
-      ui bg 02_1: 569799507
+      paylines_0: 1358028828
+      paylines_1: 1186864435
+      paylines_2: -316864351
+      paylines_3: -880070663
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
