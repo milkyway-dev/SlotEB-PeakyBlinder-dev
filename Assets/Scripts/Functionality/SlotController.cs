@@ -22,13 +22,15 @@ public class SlotController : MonoBehaviour
     [Header("Slots Transforms")]
     [SerializeField] private RectTransform[] Slot_Transform;
     [SerializeField] private RectTransform mask_transform;
+    [SerializeField] private RectTransform bg_mask_transform;
+    [SerializeField] private RectTransform[] bg_slot_transform;
     [SerializeField] private RectTransform bg_transform;
     [SerializeField] private RectTransform[] sideBars;
     [SerializeField] private int level;
 
 
     [Header("tween properties")]
-    [SerializeField] private int tweenHeight = 0;
+    [SerializeField] private float tweenHeight = 0;
     [SerializeField] private float initialPos;
 
 
@@ -54,7 +56,7 @@ public class SlotController : MonoBehaviour
         for (int i = 0; i < Slot_Transform.Length; i++)
         {
             InitializeTweening(Slot_Transform[i]);
-            // yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.15f);
 
         }
 
@@ -128,9 +130,10 @@ public class SlotController : MonoBehaviour
         sizeDelta.x = 5 * iconWidth;
         float reelHeight = 15 * iconHeight;
         initialPos = -(iconHeight * (3 + (level - 1) * 0.5f));
-
+        tweenHeight=reelHeight+initialPos;
         mask_transform.DOSizeDelta(sizeDelta, 1f);
-
+        bg_mask_transform.DOSizeDelta(sizeDelta, 1f);
+        bg_mask_transform.DOSizeDelta(sizeDelta, 1f);
 
         if (level == 0)
         {
@@ -152,11 +155,18 @@ public class SlotController : MonoBehaviour
                 LayoutRebuilder.ForceRebuildLayoutImmediate(Slot_Transform[index]);
 
             });
+            bg_slot_transform[index].DOSizeDelta(new Vector2(iconWidth, iconHeight*7), 1f).OnUpdate(() =>
+            {
+
+                LayoutRebuilder.ForceRebuildLayoutImmediate(bg_slot_transform[index]);
+
+            });
         }
         for (int i = 0; i < Slot_Transform.Length; i++)
         {
             Vector2 finalPos = new Vector2((i - Slot_Transform.Length / 2) * iconWidth, initialPos);
             Slot_Transform[i].DOLocalMove(finalPos, 1);
+             bg_slot_transform[i].DOLocalMove(new Vector2(finalPos.x,-(iconHeight * (2 + (level - 1) * 0.5f))), 1);
         }
 
     }
@@ -231,7 +241,7 @@ public class SlotController : MonoBehaviour
     private void InitializeTweening(Transform slotTransform)
     {
         // slotTransform.localPosition = new Vector2(slotTransform.localPosition.x, 0);
-        Tweener tweener = slotTransform.DOLocalMoveY(-tweenHeight, 0.15f).SetLoops(-1, LoopType.Restart).SetDelay(0);
+        Tweener tweener = slotTransform.DOLocalMoveY(-tweenHeight, 0.17f).SetLoops(-1, LoopType.Restart).SetDelay(0);
         alltweens.Add(tweener);
         // tweener.Play();
     }

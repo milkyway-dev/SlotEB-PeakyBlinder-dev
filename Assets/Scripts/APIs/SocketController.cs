@@ -27,15 +27,15 @@ public class SocketController : MonoBehaviour
     //private string SocketURI;
 
     protected string SocketURI = null;
-    protected string TestSocketURI = "https://game-crm-rtp-backend.onrender.com/";
+    // protected string TestSocketURI = "https://game-crm-rtp-backend.onrender.com/";
     // protected string TestSocketURI = "https://7p68wzhv-5000.inc1.devtunnels.ms/";
-    // protected string TestSocketURI = "http://localhost:5000";
+    protected string TestSocketURI = "http://localhost:5000";
     //protected string SocketURI = "http://localhost:5000";
 
     [SerializeField]
     private string TestToken;
 
-    protected string gameID = "SL-BE";
+    protected string gameID = "";
 
     internal bool isLoading;
     internal bool SetInit = false;
@@ -244,21 +244,19 @@ public class SocketController : MonoBehaviour
 
 
         string id = resp["id"].ToString();
+
         var message = resp["message"];
         var gameData = message["GameData"];
-        // var playerData = message["PlayerData"];
+
         if (message["PlayerData"] != null)
             socketModel.playerData = message["PlayerData"].ToObject<PlayerData>();
+
         switch (id)
         {
             case "InitData":
                 {
                     socketModel.uIData.symbols = message["UIData"]["paylines"]["symbols"].ToObject<List<Symbol>>();
-                    socketModel.uIData.wildMultiplier = gameData["wildMultiplier"].ToObject<List<double>>();
-                    socketModel.uIData.BatsMultiplier = gameData["BatsMultiplier"].ToObject<List<double>>();
                     socketModel.initGameData.Bets = gameData["Bets"].ToObject<List<double>>();
-                    socketModel.initGameData.lineData = gameData["Lines"].ToObject<List<List<int>>>();
-                    // socketModel.initGameData.freeSpinCount=gameData["freeSpinIncrementCount"].ToObject<double>();
                     OnInit?.Invoke();
                     Debug.Log("init data" + JsonConvert.SerializeObject(socketModel.initGameData));
 
@@ -276,24 +274,7 @@ public class SocketController : MonoBehaviour
                     isResultdone = true;
                     break;
                 }
-            case "GambleResult":
-                {
-                    socketModel.gambleData.currentWinning = message["currentWinning"].ToObject<double>();
-                    socketModel.gambleData.playerWon = message["playerWon"].ToObject<bool>();
-                    socketModel.gambleData.coin = message["coin"] != null ? message["coin"].ToObject<string>() : "";
-                    Debug.Log("result" + JsonConvert.SerializeObject(socketModel.gambleData));
-                    isResultdone = true;
 
-                    break;
-                }
-            case "GambleCollect":
-                {
-                    socketModel.gambleData.currentWinning = message["currentWinning"].ToObject<double>();
-                    socketModel.gambleData.balance = message["balance"].ToObject<double>();
-                    Debug.Log("collect" + JsonConvert.SerializeObject(socketModel.gambleData));
-                    isResultdone = true;
-                    break;
-                }
             case "ExitUser":
                 {
                     if (this.manager != null)

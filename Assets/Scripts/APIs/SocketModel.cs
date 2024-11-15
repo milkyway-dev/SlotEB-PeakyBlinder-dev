@@ -17,7 +17,6 @@ public class SocketModel
 
     public ResultGameData resultGameData;
 
-    public GambleData gambleData;
     public int currentBetIndex=0;
 
         internal SocketModel(){
@@ -25,7 +24,6 @@ public class SocketModel
         this.uIData= new UIData();
         this.initGameData= new InitGameData();
         this.resultGameData= new ResultGameData();
-        this.gambleData=new GambleData();
     }
 
 }
@@ -67,17 +65,8 @@ public class InitGameData
 public class UIData
 {
     public List<Symbol> symbols { get; set; }
-        public List<double> BatsMultiplier {get; set;}
-
-    public List<double> wildMultiplier {get; set;}
 }
 
-[Serializable]
-public class freeSpin{
-
-
-
-}
 
 [Serializable]
 public class BetData
@@ -131,16 +120,6 @@ public class Symbol
     public int freeSpin { get; set; }
 }
 
-[Serializable]
-
-public class GambleData{
-
-    public bool playerWon{get; set;}
-    public double currentWinning{get; set;}
-    public string coin{get; set;}
-    public double balance{get; set;}
-
-}
 
 
 [Serializable]

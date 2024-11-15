@@ -93,13 +93,6 @@ public class GameManager : MonoBehaviour
         SetButton(ToatlBetMinus_Button, () => OnBetChange(false));
         SetButton(TotalBetPlus_Button, () => OnBetChange(true));
         SetButton(Maxbet_button, MaxBet);
-        SetButton(Double_Button, OnInitGamble);
-        SetButton(Head_option, () => StartCoroutine(OnSelectGamble("HEAD")));
-        SetButton(Tail_Option, () => StartCoroutine(OnSelectGamble("TAIL")));
-        SetButton(Collect_Option, () => StartCoroutine(OnGambleCollect()));
-
-        SetButton(allGambleButton, () => changeGambleType(true));
-        SetButton(halfGambleButton, () => changeGambleType(false));
 
         // autoSpinDropDown.onValueChanged.AddListener((int index) =>
         // {
@@ -117,13 +110,13 @@ public class GameManager : MonoBehaviour
         SetButton(Turbo_button, ToggleTurbo);
 
         slotManager.shuffleInitialMatrix();
-        // socketController.OnInit = InitGame;
+        socketController.OnInit = InitGame;
         uIManager.ToggleAudio = audioController.ToggleMute;
         uIManager.playButtonAudio = audioController.PlayButtonAudio;
         uIManager.OnExit = () => socketController.CloseSocket();
         socketController.ShowDisconnectionPopup = uIManager.DisconnectionPopup;
 
-        // socketController.OpenSocket();
+        socketController.OpenSocket();
     }
 
 
@@ -149,16 +142,14 @@ public class GameManager : MonoBehaviour
         {
             initiated = true;
             betCounter = 0;
-            currentTotalBet = socketController.socketModel.initGameData.Bets[betCounter] * socketController.socketModel.initGameData.lineData.Count;
+            // TODO: change total bet
+            currentTotalBet = socketController.socketModel.initGameData.Bets[betCounter];
             currentBalance=socketController.socketModel.playerData.Balance;
             if (totalBet_text) totalBet_text.text = currentTotalBet.ToString();
             if (betPerLine_text) betPerLine_text.text = socketController.socketModel.initGameData.Bets[betCounter].ToString();
-            PayLineCOntroller.paylines = socketController.socketModel.initGameData.lineData;
+            // PayLineCOntroller.paylines = socketController.socketModel.initGameData.lineData;
             uIManager.UpdatePlayerInfo(socketController.socketModel.playerData);
             uIManager.PopulateSymbolsPayout(socketController.socketModel.uIData);
-            PopulateAutoSpinDropDown();
-            PopulateBetPerlineDropDown();
-            CalculateCost();
             Application.ExternalCall("window.parent.postMessage", "OnEnter", "*");
         }
         else
@@ -325,6 +316,7 @@ public class GameManager : MonoBehaviour
         // var spinData = new { data = new { currentBet = betCounter, currentLines = 30, spins = 1 }, id = "SPIN" };
         // socketController.SendData("message", spinData);
         yield return slotManager.StartSpin();
+        yield return new WaitForSeconds(1f);
         // slotManager.StopIconAnimation();
         if (audioController) audioController.PlaySpinAudio();
         // yield return new WaitUntil(() => socketController.isResultdone);
@@ -395,146 +387,8 @@ public class GameManager : MonoBehaviour
             VHcomboList[i].gameObject.SetActive(false);
         }
     }
-    void OnInitGamble()
-    {
-        if (isAutoSpin)
-        {
-            StartCoroutine(StopAutoSpinCoroutine());
-        }
-        if (iterativeRoutine != null)
-            StopCoroutine(iterativeRoutine);
-
-        object gambleInitData = new { data = new { }, id = "GAMBLEINIT" };
-        socketController.SendData("message", gambleInitData);
-        changeGambleType(true);
-        bank = socketController.socketModel.playerData.currentWining;
-        uIManager.UpdategambleInfo(bank);
-        gambleObject.SetActive(true);
-        gambleChance = 3;
-
-    }
-    IEnumerator OnSelectGamble(string type)
-    {
-        ToggleGambleBtnGrp(false);
-        coinAnim.StartAnimation();
-        audioController.PlaySpinAudio("gamble");
-        object gambleResData = new { data = new { selected = type, gambleOption = gambleOption }, id = "GAMBLERESULT" };
-        socketController.SendData("message", gambleResData);
-        yield return new WaitUntil(() => socketController.isResultdone);
-        if (turboMode)
-        {
-            yield return new WaitForSeconds(0.5f);
-        }
-        else
-        {
-            yield return new WaitForSeconds(1f);
-        }
-        if (socketController.socketModel.gambleData.coin == "HEAD")
-        {
-            coinAnim.textureArray.RemoveAt(0);
-            coinAnim.textureArray.Insert(0, headImage);
-        }
-        else if (socketController.socketModel.gambleData.coin == "TAIL")
-        {
-            coinAnim.textureArray.RemoveAt(0);
-            coinAnim.textureArray.Insert(0, tailImage);
-
-        }
-        coinAnim.StopAnimation();
-        audioController.StopSpinAudio();
-        if (socketController.socketModel.gambleData.playerWon)
-            audioController.PlayWLAudio("gamble");
-        yield return new WaitForSeconds(0.5f);
 
 
-
-        bank = socketController.socketModel.gambleData.currentWinning;
-
-        if (gambleOption == "HALF")
-        {
-            uIManager.UpdategambleInfo(bank, true);
-            if (!socketController.socketModel.gambleData.playerWon && socketController.socketModel.gambleData.currentWinning > 0)
-            {
-                gambleChance--;
-                if (gambleChance <= 0)
-                {
-                    yield return new WaitForSeconds(1);
-                    yield return OnGambleCollect();
-                    yield break;
-
-                }
-
-            }
-        }
-        else
-            uIManager.UpdategambleInfo(bank);
-
-        if (bank <= 0)
-        {
-            yield return new WaitForSeconds(1);
-            yield return OnGambleCollect();
-            yield break;
-        }
-        coinAnim.StopAnimation();
-        ToggleGambleBtnGrp(true);
-        audioController.StopWLAaudio();
-
-
-    }
-
-    IEnumerator OnGambleCollect()
-    {
-        ToggleGambleBtnGrp(false);
-        object gambleResData = new { data = new { }, id = "GAMBLECOLLECT" };
-        socketController.SendData("message", gambleResData);
-        yield return new WaitUntil(() => socketController.isResultdone);
-        currentBalance = socketController.socketModel.gambleData.balance;
-        // PlayerData playerData = new PlayerData();
-        socketController.socketModel.playerData.currentWining = socketController.socketModel.gambleData.currentWinning;
-        socketController.socketModel.playerData.Balance = socketController.socketModel.gambleData.balance;
-        // Debug.Log("balance "+JsonConvert.SerializeObject(socketController.socketModel.gambleData));
-        // Debug.Log("player "+JsonConvert.SerializeObject(socketController.socketModel));
-        gambleChance = 0;
-        Double_Button.interactable = false;
-        uIManager.UpdatePlayerInfo(socketController.socketModel.playerData);
-        gambleObject.SetActive(false);
-        ToggleGambleBtnGrp(true);
-
-
-    }
-
-    internal void changeGambleType(bool full)
-    {
-
-        if (full)
-        {
-            halfGambleButton.transform.GetChild(0).gameObject.SetActive(false);
-            allGambleButton.transform.GetChild(0).gameObject.SetActive(true);
-            gambleOption = "ALL";
-
-            uIManager.UpdategambleInfo(bank);
-
-        }
-        else
-        {
-            halfGambleButton.transform.GetChild(0).gameObject.SetActive(true);
-            allGambleButton.transform.GetChild(0).gameObject.SetActive(false);
-            gambleOption = "HALF";
-            uIManager.UpdategambleInfo(bank, true);
-
-        }
-
-    }
-
-    void ToggleGambleBtnGrp(bool toggle)
-    {
-        Head_option.interactable = toggle;
-        Tail_Option.interactable = toggle;
-        Collect_Option.interactable = toggle;
-        allGambleButton.interactable = toggle;
-        halfGambleButton.interactable = toggle;
-
-    }
     void ToggleButtonGrp(bool toggle)
     {
         if (SlotStart_Button) SlotStart_Button.interactable = toggle;

@@ -245,33 +245,12 @@ public class UIManager : MonoBehaviour
             text = "";
             for (int j = 0; j < uIData.symbols[i].Multiplier.Count; j++)
             {
-                text += $"{6 - j}x - {uIData.symbols[i].Multiplier[j][0]} \n";
+                text += $"{5 - j}x - {uIData.symbols[i].Multiplier[j][0]} \n";
             }
             SymbolsText[i].text = text;
         }
 
-        text = "";
-        for (int i = 0; i < uIData.wildMultiplier.Count; i++)
-        {
-            text += $"{i + 3}x - {uIData.wildMultiplier[i]} \n";
-        }
-        Wild_Text.text = text;
-
-        text = "";
-        string multiplierRow = "";
-        string valueRow = "";
-
-        for (int i = 0; i < uIData.BatsMultiplier.Count; i++)
-        {
-            if (uIData.BatsMultiplier[i] == 0)
-                continue;
-            multiplierRow += $"X{uIData.BatsMultiplier.Count - i}\t";
-            valueRow += $"{uIData.BatsMultiplier[i]}\t";
-        }
-
-        Bat_Text.text = multiplierRow + "\n" + valueRow;
-
-
+        Wild_Text.text=uIData.symbols[10].description.ToString();
 
     }
 
