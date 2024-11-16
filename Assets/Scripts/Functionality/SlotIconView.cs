@@ -8,6 +8,7 @@ public class SlotIconView : MonoBehaviour
 {
     [Header("required fields")]
     [SerializeField] internal int pos;
+    [SerializeField] internal int id=-1;
     [SerializeField] internal Image iconImage;
 
 

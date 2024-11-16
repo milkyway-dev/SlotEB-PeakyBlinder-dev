@@ -26,7 +26,7 @@ public class SlotController : MonoBehaviour
     [SerializeField] private RectTransform[] bg_slot_transform;
     [SerializeField] private RectTransform bg_transform;
     [SerializeField] private RectTransform[] sideBars;
-    [SerializeField] private int level;
+    [SerializeField] internal int level;
 
 
     [Header("tween properties")]
@@ -65,15 +65,26 @@ public class SlotController : MonoBehaviour
 
     internal void PopulateSLotMatrix(List<List<int>> resultData)
     {
+        int matrixRowCount=0;
 
-        for (int j = 0; j < slotMatrix[0].slotImages.Count; j++)
+        for (int i = resultData.Count-1; i >=0; i--)
         {
-            for (int i = 0; i < slotMatrix.Count; i++)
+            for (int j = 0; j <resultData[i].Count ; j++)
             {
-
-                slotMatrix[i].slotImages[j].iconImage.sprite = iconImages[resultData[j][i]];
+                slotMatrix[j].slotImages[6-matrixRowCount].iconImage.sprite = iconImages[resultData[i][j]];
+                slotMatrix[j].slotImages[6-matrixRowCount].id = resultData[i][j];
             }
+            matrixRowCount++;
         }
+
+        // for (int j = 0; j < slotMatrix[0].slotImages.Count; j++)
+        // {
+        //     for (int i = 0; i < slotMatrix.Count; i++)
+        //     {
+
+        //         slotMatrix[i].slotImages[j].iconImage.sprite = iconImages[resultData[j][i]];
+        //     }
+        // }
 
     }
     internal IEnumerator StopSpin()
@@ -106,22 +117,16 @@ public class SlotController : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            ResizeSlotMatrix(true);
-        }
-        if (Input.GetMouseButtonDown(1))
-        {
-            ResizeSlotMatrix(false);
-        }
+
     }
 
-    internal void ResizeSlotMatrix(bool inc)
+    internal void ResizeSlotMatrix(int levelCount)
     {
-        if (inc)
-            level++;
-        else
-            level = 0;
+        for (int i = 0; i < 5; i++)
+        {
+            slotMatrix[i].slotImages[2+levelCount].iconImage.sprite=iconImages[UnityEngine.Random.Range(0,9)];
+        }
+        level=levelCount;
         Vector2 sizeDelta = mask_transform.sizeDelta;
 
         float iconHeight = sizeDelta.y / (3 + level);

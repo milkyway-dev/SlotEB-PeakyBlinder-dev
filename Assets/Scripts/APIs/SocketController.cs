@@ -264,13 +264,16 @@ public class SocketController : MonoBehaviour
                 }
             case "ResultData":
                 {
+                    // socketModel.resultGameData.resultSymbols=gameData["resultSymbols"].ToObject<List<List<int>>>();
+                    // socketModel.resultGameData.isLevelUp=gameData["isLevelUp"].ToObject<bool>();
+                    // socketModel.resultGameData.level=gameData["level"].ToObject<int>();
                     socketModel.resultGameData = gameData.ToObject<ResultGameData>();
                     // Debug.Log(jsonObject);
                     // myData.message.GameData.FinalResultReel = ConvertListOfListsToStrings(myData.message.GameData.ResultReel);
                     // myData.message.GameData.FinalsymbolsToEmit = TransformAndRemoveRecurring(myData.message.GameData.symbolsToEmit);
                     // resultData = myData.message.GameData;
                     // playerdata = myData.message.PlayerData;
-                    Debug.Log("result data" + JsonConvert.SerializeObject(socketModel.resultGameData));
+                    Debug.Log("result data" + JsonConvert.SerializeObject(gameData["resultSymbols"]));
                     isResultdone = true;
                     break;
                 }

@@ -33,19 +33,11 @@ public class SocketModel
 [Serializable]
 public class ResultGameData
 {
-    public List<List<int>> ResultReel { get; set; }
-    public List<int> linesToEmit { get; set; }
-    public List<List<string>> symbolsToEmit { get; set; }
-    public bool isFreeSpin {get; set;}
-    public List<string> vampHuman {get; set;}
+    public List<List<int>> resultSymbols { get; set; }
+    public bool isLevelUp {get; set;}
+    public int level {get; set;}
 
-    public List<string> bloodSplash {get; set;}
-
-    public List<string> batPositions {get; set;}
-    // public freeSpin freeSpin{get; set;}
-    public int count {get; set;}
-    // public int freeSpinCount { get; set; }
-    public double jackpot { get; set; }
+ 
 }
 
 
