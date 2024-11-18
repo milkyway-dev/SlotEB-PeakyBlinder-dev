@@ -65,14 +65,14 @@ public class SlotController : MonoBehaviour
 
     internal void PopulateSLotMatrix(List<List<int>> resultData)
     {
-        int matrixRowCount=0;
+        int matrixRowCount = 0;
 
-        for (int i = resultData.Count-1; i >=0; i--)
+        for (int i = resultData.Count - 1; i >= 0; i--)
         {
-            for (int j = 0; j <resultData[i].Count ; j++)
+            for (int j = 0; j < resultData[i].Count; j++)
             {
-                slotMatrix[j].slotImages[6-matrixRowCount].iconImage.sprite = iconImages[resultData[i][j]];
-                slotMatrix[j].slotImages[6-matrixRowCount].id = resultData[i][j];
+                slotMatrix[j].slotImages[6 - matrixRowCount].iconImage.sprite = iconImages[resultData[i][j]];
+                slotMatrix[j].slotImages[6 - matrixRowCount].id = resultData[i][j];
             }
             matrixRowCount++;
         }
@@ -115,27 +115,26 @@ public class SlotController : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-
-    }
-
     internal void ResizeSlotMatrix(int levelCount)
     {
-        for (int i = 0; i < 5; i++)
+        if (levelCount>0 && levelCount<4)
         {
-            slotMatrix[i].slotImages[2+levelCount].iconImage.sprite=iconImages[UnityEngine.Random.Range(0,9)];
+            for (int i = 0; i < 5; i++)
+            {
+                slotMatrix[i].slotImages[4 - levelCount].iconImage.sprite = iconImages[UnityEngine.Random.Range(0, 9)];
+            }
         }
-        level=levelCount;
+
+        level = levelCount;
         Vector2 sizeDelta = mask_transform.sizeDelta;
 
         float iconHeight = sizeDelta.y / (3 + level);
-        float iconWidth = iconHeight*1.25f;
+        float iconWidth = iconHeight * 1.25f;
 
         sizeDelta.x = 5 * iconWidth;
         float reelHeight = 15 * iconHeight;
         initialPos = -(iconHeight * (3 + (level - 1) * 0.5f));
-        tweenHeight=reelHeight+initialPos;
+        tweenHeight = reelHeight + initialPos;
         mask_transform.DOSizeDelta(sizeDelta, 1f);
         bg_mask_transform.DOSizeDelta(sizeDelta, 1f);
         bg_mask_transform.DOSizeDelta(sizeDelta, 1f);
@@ -147,7 +146,7 @@ public class SlotController : MonoBehaviour
         }
         else
         {
-            sideBars[0].DOLocalMoveX(iconWidth * 2 -  (level - 1) * 15, 1f);
+            sideBars[0].DOLocalMoveX(iconWidth * 2 - (level - 1) * 15, 1f);
             sideBars[1].DOLocalMoveX(-iconWidth * 2 + (level - 1) * 15, 1f);
         }
 
@@ -160,7 +159,7 @@ public class SlotController : MonoBehaviour
                 LayoutRebuilder.ForceRebuildLayoutImmediate(Slot_Transform[index]);
 
             });
-            bg_slot_transform[index].DOSizeDelta(new Vector2(iconWidth, iconHeight*7), 1f).OnUpdate(() =>
+            bg_slot_transform[index].DOSizeDelta(new Vector2(iconWidth, iconHeight * 7), 1f).OnUpdate(() =>
             {
 
                 LayoutRebuilder.ForceRebuildLayoutImmediate(bg_slot_transform[index]);
@@ -171,7 +170,7 @@ public class SlotController : MonoBehaviour
         {
             Vector2 finalPos = new Vector2((i - Slot_Transform.Length / 2) * iconWidth, initialPos);
             Slot_Transform[i].DOLocalMove(finalPos, 1);
-             bg_slot_transform[i].DOLocalMove(new Vector2(finalPos.x,-(iconHeight * (2 + (level - 1) * 0.5f))), 1);
+            bg_slot_transform[i].DOLocalMove(new Vector2(finalPos.x, -(iconHeight * (2 + (level - 1) * 0.5f))), 1);
         }
 
     }

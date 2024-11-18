@@ -37,6 +37,8 @@ public class ResultGameData
     public bool isLevelUp {get; set;}
     public int level {get; set;}
 
+    public List<string> symbolsToEmit {get; set;}
+
  
 }
 

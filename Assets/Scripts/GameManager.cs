@@ -31,34 +31,21 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button AutoSpin_Button;
     [SerializeField] private Button AutoSpinStop_Button;
     [SerializeField] private Button AutoSpinPopup_Button;
-    [SerializeField] private TMP_Text AUtoSpinCountText;
-    [SerializeField] TMP_Dropdown autoSpinDropDown;
-    [SerializeField] TMP_Dropdown betPerLineDropDown;
+    [SerializeField] private Button autoSpinUp;
+    [SerializeField] private Button autoSpinDown;
     [SerializeField] private bool isAutoSpin;
     [SerializeField] private int autoSpinCounter;
     [SerializeField] private TMP_Text autoSpinText;
+    [SerializeField] private TMP_Text autoSpinShowText;
     List<int> autoOptions = new List<int>() { 15, 20, 25, 30, 40, 100 };
 
 
     [Header("For Gamble")]
     [SerializeField] private Button Double_Button;
-    [SerializeField] private Button Head_option;
-    [SerializeField] private Button Tail_Option;
-    [SerializeField] private Button Collect_Option;
-    [SerializeField] private Button allGambleButton;
-    [SerializeField] private Button halfGambleButton;
-    [SerializeField] private GameObject gambleObject;
-    [SerializeField] private Transform coinBlast;
-    [SerializeField] private ImageAnimation coinAnim;
-    [SerializeField] private string gambleOption;
-    [SerializeField] private int gambleChance;
-    private double bank;
 
-    [SerializeField] private Sprite headImage;
-    [SerializeField] private Sprite tailImage;
+    [Header("For FreeSpins")]
+    [SerializeField] private bool specialSpin;
 
-    [SerializeField] private bool isFreeSpin;
-    [SerializeField] private bool freeSpinStarted;
     [SerializeField] private double currentBalance;
     [SerializeField] private double currentTotalBet;
     [SerializeField] private int betCounter = 0;
@@ -72,10 +59,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private int freeSpinCount;
 
+    private bool isFreeSpin;
     [SerializeField] private List<ImageAnimation> VHcomboList;
 
-    [SerializeField] private bool turboMode;
-    [SerializeField] private Button Turbo_button;
 
     private bool initiated;
 
@@ -93,21 +79,10 @@ public class GameManager : MonoBehaviour
         SetButton(ToatlBetMinus_Button, () => OnBetChange(false));
         SetButton(TotalBetPlus_Button, () => OnBetChange(true));
         SetButton(Maxbet_button, MaxBet);
+        SetButton(autoSpinUp, () => OnAutoSpinChange(true));
+        SetButton(autoSpinDown, () => OnAutoSpinChange(false));
+        autoSpinShowText.text = autoOptions[autoSpinCounter].ToString();
 
-        // autoSpinDropDown.onValueChanged.AddListener((int index) =>
-        // {
-        //     autoSpinCounter = index;
-        //     CalculateCost();
-        // });
-
-        // betPerLineDropDown.onValueChanged.AddListener((int index) =>
-        // {
-        //     betCounter = index;
-        //     betPerLine_text.text = socketController.socketModel.initGameData.Bets[betCounter].ToString();
-        //     CalculateCost();
-        // });
-
-        SetButton(Turbo_button, ToggleTurbo);
 
         slotManager.shuffleInitialMatrix();
         socketController.OnInit = InitGame;
@@ -144,7 +119,7 @@ public class GameManager : MonoBehaviour
             betCounter = 0;
             // TODO: change total bet
             currentTotalBet = socketController.socketModel.initGameData.Bets[betCounter];
-            currentBalance=socketController.socketModel.playerData.Balance;
+            currentBalance = socketController.socketModel.playerData.Balance;
             if (totalBet_text) totalBet_text.text = currentTotalBet.ToString();
             if (betPerLine_text) betPerLine_text.text = socketController.socketModel.initGameData.Bets[betCounter].ToString();
             // PayLineCOntroller.paylines = socketController.socketModel.initGameData.lineData;
@@ -155,8 +130,6 @@ public class GameManager : MonoBehaviour
         else
         {
             uIManager.PopulateSymbolsPayout(socketController.socketModel.uIData);
-            PopulateAutoSpinDropDown();
-            PopulateBetPerlineDropDown();
         }
 
 
@@ -208,10 +181,7 @@ public class GameManager : MonoBehaviour
             autoSpinText.text = noOfSPin.ToString();
 
             yield return SpinRoutine();
-            if (!turboMode)
-                yield return new WaitForSeconds(1);
-            else
-                yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.5f);
 
         }
         autoSpinText.transform.parent.gameObject.SetActive(false);
@@ -260,20 +230,23 @@ public class GameManager : MonoBehaviour
             yield break;
         }
 
-        if (!isFreeSpin)
+        if (!isFreeSpin && !specialSpin)
             uIManager.DeductBalanceAnim(socketController.socketModel.playerData.Balance - currentTotalBet, socketController.socketModel.playerData.Balance);
 
         yield return OnSpin();
         yield return OnSpinEnd();
+
+        if (specialSpin)
+        {
+
+            yield return SpinRoutine();
+        }
         if (!isAutoSpin && !isFreeSpin)
         {
             isSpinning = false;
             ToggleButtonGrp(true);
         }
-        if (socketController.socketModel.playerData.currentWining > 0 && !isFreeSpin)
-        {
-            Double_Button.interactable = true;
-        }
+
 
     }
     bool OnSpinStart()
@@ -281,15 +254,12 @@ public class GameManager : MonoBehaviour
 
         isSpinning = true;
         winIterationCount = 0;
-        if (iterativeRoutine != null)
-            StopCoroutine(iterativeRoutine);
         slotManager.disableIconsPanel.SetActive(false);
         if (currentBalance < currentTotalBet && !isFreeSpin)
         {
             uIManager.LowBalPopup();
             return false;
         }
-        Double_Button.interactable = false;
         ToggleButtonGrp(false);
         uIManager.ClosePopup();
         return true;
@@ -299,12 +269,13 @@ public class GameManager : MonoBehaviour
 
     IEnumerator OnSpin()
     {
+
         var spinData = new { data = new { currentBet = betCounter, currentLines = 1, spins = 1 }, id = "SPIN" };
         socketController.SendData("message", spinData);
         yield return slotManager.StartSpin();
         if (audioController) audioController.PlaySpinAudio();
         yield return new WaitUntil(() => socketController.isResultdone);
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         // slotManager.StopIconAnimation();
         slotManager.PopulateSLotMatrix(socketController.socketModel.resultGameData.resultSymbols);
         // currentBalance = socketController.socketModel.playerData.Balance;
@@ -326,19 +297,23 @@ public class GameManager : MonoBehaviour
         // }
         uIManager.UpdatePlayerInfo(socketController.socketModel.playerData);
 
-        if(socketController.socketModel.resultGameData.isLevelUp && socketController.socketModel.resultGameData.level>0){
-
+        if (socketController.socketModel.resultGameData.isLevelUp && socketController.socketModel.resultGameData.level > 0)
+        {
+            specialSpin = true;
             slotManager.ResizeSlotMatrix(socketController.socketModel.resultGameData.level);
-        }else{
-            if(slotManager.level>0)
+        }
+        else
+        {
+            specialSpin = false;
             slotManager.ResizeSlotMatrix(0);
 
         }
 
-
+        yield return new WaitForSeconds(1f);
         audioController.StopWLAaudio();
         yield return null;
     }
+
 
 
 
@@ -408,6 +383,30 @@ public class GameManager : MonoBehaviour
             uIManager.LowBalPopup();
     }
 
+    private void OnAutoSpinChange(bool inc)
+    {
+
+        if (audioController) audioController.PlayButtonAudio();
+
+        if (inc)
+        {
+            if (autoSpinCounter < autoOptions.Count - 1)
+            {
+                autoSpinCounter++;
+            }
+        }
+        else
+        {
+            if (autoSpinCounter > 0)
+            {
+                autoSpinCounter--;
+            }
+        }
+
+        autoSpinShowText.text = autoOptions[autoSpinCounter].ToString();
+
+
+    }
     private void MaxBet()
     {
         if (audioController) audioController.PlayButtonAudio();
@@ -423,48 +422,8 @@ public class GameManager : MonoBehaviour
     }
 
 
-    private void PopulateAutoSpinDropDown()
-    {
-        autoSpinDropDown.ClearOptions();
-        List<string> autoOptionsString = new List<string>();
-
-        for (int i = 0; i < autoOptions.Count; i++)
-        {
-            autoOptionsString.Add(autoOptions[i].ToString());
-        }
-        autoSpinDropDown.AddOptions(autoOptionsString);
-        autoSpinDropDown.value = 0;
-        autoSpinDropDown.RefreshShownValue();
-    }
-
-    private void PopulateBetPerlineDropDown()
-    {
-
-        betPerLineDropDown.ClearOptions();
-
-        List<string> betOptionsString = new List<string>();
-
-        for (int i = 0; i < socketController.socketModel.initGameData.Bets.Count; i++)
-        {
-            betOptionsString.Add(socketController.socketModel.initGameData.Bets[i].ToString());
-        }
-
-        betPerLineDropDown.AddOptions(betOptionsString);
-
-        betPerLineDropDown.value = 0;
-        betPerLineDropDown.RefreshShownValue();
-
-    }
 
 
-
-    private double CalculateCost()
-    {
-        currentTotalBet = socketController.socketModel.initGameData.Bets[betCounter] * socketController.socketModel.initGameData.lineData.Count;
-        uIManager.UpdateAutoSpinCost(currentTotalBet * autoOptions[autoSpinCounter]);
-
-        return 0;
-    }
 
 
     void CheckWinPopups(double amount)
@@ -487,20 +446,5 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void ToggleTurbo()
-    {
 
-        turboMode = !turboMode;
-        if (turboMode)
-        {
-            Turbo_button.transform.GetChild(0).gameObject.SetActive(true);
-            Turbo_button.transform.GetChild(1).gameObject.SetActive(false);
-        }
-        else
-        {
-            Turbo_button.transform.GetChild(0).gameObject.SetActive(false);
-            Turbo_button.transform.GetChild(1).gameObject.SetActive(true);
-        }
-
-    }
 }

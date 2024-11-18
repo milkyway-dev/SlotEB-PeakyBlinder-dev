@@ -13713,7 +13713,7 @@ GameObject:
   - component: {fileID: 790604961}
   - component: {fileID: 790604960}
   m_Layer: 5
-  m_Name: Image
+  m_Name: desc
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14412,7 +14412,6 @@ MonoBehaviour:
   uIManager: {fileID: 377874625}
   socketController: {fileID: 500036492}
   audioController: {fileID: 4884499504835516836}
-  PayLineCOntroller: {fileID: 963807277}
   SlotStart_Button: {fileID: 643299304}
   Maxbet_button: {fileID: 1237956803}
   BetMinus_Button: {fileID: 1245309301}
@@ -14426,27 +14425,14 @@ MonoBehaviour:
   AutoSpin_Button: {fileID: 1735313169}
   AutoSpinStop_Button: {fileID: 457913149}
   AutoSpinPopup_Button: {fileID: 1752670619}
-  AUtoSpinCountText: {fileID: 0}
-  autoSpinDropDown: {fileID: 0}
-  betPerLineDropDown: {fileID: 0}
+  autoSpinUp: {fileID: 918059445}
+  autoSpinDown: {fileID: 1550044417}
   isAutoSpin: 0
   autoSpinCounter: 0
   autoSpinText: {fileID: 1313104393}
+  autoSpinShowText: {fileID: 810064770}
   Double_Button: {fileID: 133709855}
-  Head_option: {fileID: 1650409226}
-  Tail_Option: {fileID: 1579653798}
-  Collect_Option: {fileID: 1740753724}
-  allGambleButton: {fileID: 1970412899}
-  halfGambleButton: {fileID: 1832968689}
-  gambleObject: {fileID: 1112840942}
-  coinBlast: {fileID: 0}
-  coinAnim: {fileID: 451893043}
-  gambleOption: 
-  gambleChance: 0
-  headImage: {fileID: 21300000, guid: c14b62b0751e64847b6e7eda5517aecc, type: 3}
-  tailImage: {fileID: 21300000, guid: 0897e113039904b55b62d7ad83f24862, type: 3}
-  isFreeSpin: 0
-  freeSpinStarted: 0
+  specialSpin: 0
   currentBalance: 0
   currentTotalBet: 0
   betCounter: 0
@@ -14455,8 +14441,6 @@ MonoBehaviour:
   winIterationCount: 0
   freeSpinCount: 0
   VHcomboList: []
-  turboMode: 0
-  Turbo_button: {fileID: 0}
 --- !u!4 &830221915
 Transform:
   m_ObjectHideFlags: 0
@@ -17324,43 +17308,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23c2d218303904f8b89a581d384e3778, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  x_Distance: 280
-  y_Distance: 250
-  LineContainer: {fileID: 21776335}
-  Line_Prefab: {fileID: 3265530180553089606, guid: 95e0640a1aceb43ce952186ee810e809, type: 3}
-  paylineButtons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  InitialLinePosition: {x: -700, y: 285}
-  dontDestroyLines: []
 --- !u!4 &963807278
 Transform:
   m_ObjectHideFlags: 0
