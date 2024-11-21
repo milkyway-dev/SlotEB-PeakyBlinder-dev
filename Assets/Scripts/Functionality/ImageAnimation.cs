@@ -53,7 +53,6 @@ public class ImageAnimation : MonoBehaviour
 
     private void Start()
     {
-		OriginalSprite = rendererDelegate.sprite;
     }
 
     private void OnEnable()
@@ -134,11 +133,28 @@ public class ImageAnimation : MonoBehaviour
 	{
         if (currentAnimationState != 0)
         {
-            if (OriginalSprite != null)
+			try
+			{
+				           if (OriginalSprite != null)
                 rendererDelegate.sprite = OriginalSprite;
             else
                 rendererDelegate.sprite = textureArray[0];
+			}
+			catch (System.Exception)
+			{
+				
+				Debug.Log(" texture array"+textureArray.Count);
+			}
+			try
+			{
 			CancelInvoke("AnimationProcess");
+				
+			}
+			catch (System.Exception)
+			{
+				
+				Debug.Log("error in cancelling invoke");
+			}
 			currentAnimationState = ImageState.NONE;
 			isplaying = false;
 		}

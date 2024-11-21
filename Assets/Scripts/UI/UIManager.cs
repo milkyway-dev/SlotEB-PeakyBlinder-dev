@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Linq;
 using TMPro;
 using System;
+using UnityEditor.Experimental.GraphView;
 public class UIManager : MonoBehaviour
 {
 
@@ -50,7 +51,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button SettingsExit_Button;
     [SerializeField] private Button SoundToggle_button;
     [SerializeField] private Button MusicToggle_button;
-    [SerializeField] private Button Mute_button;
     [SerializeField] private Sprite empty;
     [SerializeField] private Sprite button;
     private bool isMusic = true;
@@ -59,9 +59,8 @@ public class UIManager : MonoBehaviour
 
     [Header("all Win Popup")]
     [SerializeField] private GameObject specialWinObject;
-
-    [SerializeField] private ImageAnimation normalWinImage;
-    [SerializeField] private TMP_Text specialWinTitle;
+    [SerializeField] private Image specialWinTitle;
+    [SerializeField] private Sprite[] winTitleSprites;
     [SerializeField] private GameObject WinPopup_Object;
     [SerializeField] private TMP_Text Win_Text;
 
@@ -92,7 +91,13 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Button CloseAD_Button;
     [SerializeField] private GameObject ADPopup_Object;
 
+    [Header("free spin info")]
 
+    [SerializeField] private TMP_Text freeSpinInfo;
+    [SerializeField] private TMP_Text freeSpinWinnings;
+
+    [SerializeField] private GameObject freeSpinPanel;
+    [SerializeField] private GameObject gameButtonPanel;
 
     [SerializeField]
     private Button m_AwakeGameButton;
@@ -137,7 +142,6 @@ public class UIManager : MonoBehaviour
 
         SetButton(MusicToggle_button, ToggleMusic);
         SetButton(SoundToggle_button, ToggleSound);
-        SetButton(Mute_button, ToggleMute);
 
         SetButton(LeftBtn, () => Slide(-1));
         SetButton(RightBtn, () => Slide(1));
@@ -230,7 +234,14 @@ public class UIManager : MonoBehaviour
         OpenPopup(LowBalancePopup_Object);
     }
 
+    internal void ToggleFreeSpinPanel(bool toggle)
+    {
 
+        freeSpinPanel.SetActive(toggle);
+        gameButtonPanel.SetActive(!toggle);
+
+
+    }
 
     internal void ADfunction()
     {
@@ -250,7 +261,7 @@ public class UIManager : MonoBehaviour
             SymbolsText[i].text = text;
         }
 
-        Wild_Text.text=uIData.symbols[10].description.ToString();
+        Wild_Text.text = uIData.symbols[10].description.ToString();
 
     }
 
@@ -264,7 +275,8 @@ public class UIManager : MonoBehaviour
 
     private void OpenPopup(GameObject Popup)
     {
-        if(currentPopup!=null && !DisconnectPopup_Object.activeSelf){
+        if (currentPopup != null && !DisconnectPopup_Object.activeSelf)
+        {
             ClosePopup();
         }
         if (Popup) Popup.SetActive(true);
@@ -277,11 +289,12 @@ public class UIManager : MonoBehaviour
     {
         if (!DisconnectPopup_Object.activeSelf)
         {
-            if(currentPopup!=null){
-            currentPopup.SetActive(false);
-            if (MainPopup_Object) MainPopup_Object.SetActive(false);
+            if (currentPopup != null)
+            {
+                currentPopup.SetActive(false);
+                if (MainPopup_Object) MainPopup_Object.SetActive(false);
 
-            currentPopup = null;
+                currentPopup = null;
             }
 
         }
@@ -353,20 +366,14 @@ public class UIManager : MonoBehaviour
 
         switch (value)
         {
-            case 0:
-                {
-                    normalWinImage.gameObject.SetActive(true);
-                    normalWinImage.StartAnimation();
-                    break;
-                }
             case 1:
-                specialWinTitle.text = "BIG WIN";
+                specialWinTitle.sprite = winTitleSprites[0];
                 break;
             case 2:
-                specialWinTitle.text = "HUGE WIN";
+                specialWinTitle.sprite = winTitleSprites[1];
                 break;
             case 3:
-                specialWinTitle.text = "MEGA WIN";
+                specialWinTitle.sprite = winTitleSprites[2];
                 break;
         }
     }
@@ -387,35 +394,17 @@ public class UIManager : MonoBehaviour
 
     internal IEnumerator WinTextAnim(double amount)
     {
-        double initAmount = 0;
-        DOTween.To(() => initAmount, (val) => initAmount = val, amount, 0.8f).OnUpdate(() =>
-        {
-            Win_Text.text = initAmount.ToString("f5");
+        Win_Text.text = amount.ToString();
+        Win_Text.transform.localScale *= 4;
+        Color InitCOlor = Win_Text.color;
+        Win_Text.color = new Color(0, 0, 0, 0);
+        Win_Text.transform.DOScale(Vector2.one, 1f);
+        Win_Text.DOColor(InitCOlor, 1f);
+        yield return new WaitForSeconds(3f);
+        ClosePopup();
+        if (specialWinObject.activeSelf)
+            specialWinObject.SetActive(false);
 
-        }).OnComplete(() =>
-        {
-
-            Win_Text.text = amount.ToString();
-        });
-        yield return new WaitForSeconds(1.8f);
-        normalWinImage.StopAnimation();
-        if (normalWinImage.gameObject.activeSelf)
-        {
-
-            normalWinImage.gameObject.SetActive(false);
-        }
-        Win_Text.transform.DOLocalMoveY(-411, 0.35f);
-        Win_Text.transform.DOScale(new Vector3(0, 0, 0), 0.4f).OnComplete(() =>
-        {
-            ClosePopup();
-            Win_Text.transform.localScale = Vector3.one;
-            Win_Text.transform.localPosition = Vector3.zero;
-            Win_Text.text = "0";
-
-
-        });
-        yield return new WaitForSeconds(0.5f);
-        specialWinObject.SetActive(false);
 
 
     }
@@ -425,6 +414,14 @@ public class UIManager : MonoBehaviour
         {
             OpenPopup(DisconnectPopup_Object);
         }
+    }
+
+    internal void UpdateFreeSpinInfo(int freespinCount=-1, double winnings=-1)
+    {
+        if(freespinCount>=0)
+        freeSpinInfo.text = freespinCount.ToString();
+        if(winnings>=0)
+        freeSpinWinnings.text = winnings.ToString();
     }
 
     private void ToggleMusic()
@@ -460,25 +457,4 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    private void ToggleMute()
-    {
-        isMute = !isMute;
-        if (isMute)
-        {
-            isSound=!isSound;
-            isMusic=!isMusic;
-            ToggleAudio?.Invoke(true, "all");
-            Mute_button.transform.GetChild(1).gameObject.SetActive(true);
-            Mute_button.transform.GetChild(0).gameObject.SetActive(false);
-        }
-        else
-        {
-            Mute_button.transform.GetChild(1).gameObject.SetActive(false);
-            Mute_button.transform.GetChild(0).gameObject.SetActive(true);
-            ToggleSound();
-            ToggleMusic();
-        }
-
-
-    }
 }

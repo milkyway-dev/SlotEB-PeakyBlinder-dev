@@ -50,6 +50,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private double currentTotalBet;
     [SerializeField] private int betCounter = 0;
 
+    [SerializeField] private Button freeSpinStartButton;
+
     private Coroutine autoSpinRoutine;
     private Coroutine freeSpinRoutine;
     private Coroutine iterativeRoutine;
@@ -59,7 +61,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private int freeSpinCount;
 
-    private bool isFreeSpin;
+    [SerializeField] private bool isFreeSpin;
     [SerializeField] private List<ImageAnimation> VHcomboList;
 
 
@@ -81,6 +83,8 @@ public class GameManager : MonoBehaviour
         SetButton(Maxbet_button, MaxBet);
         SetButton(autoSpinUp, () => OnAutoSpinChange(true));
         SetButton(autoSpinDown, () => OnAutoSpinChange(false));
+        SetButton(freeSpinStartButton, () => freeSpinRoutine = StartCoroutine(FreeSpinRoutine()));
+
         autoSpinShowText.text = autoOptions[autoSpinCounter].ToString();
 
 
@@ -102,11 +106,7 @@ public class GameManager : MonoBehaviour
         button.onClick.RemoveAllListeners();
         button.onClick.AddListener(() =>
         {
-            // playButtonAudio?.Invoke();
-            if (slotButton)
-                audioController.PlayButtonAudio("spin");
-            else
-                audioController.PlayButtonAudio();
+            audioController.PlayButtonAudio();
             action?.Invoke();
 
         });
@@ -157,19 +157,23 @@ public class GameManager : MonoBehaviour
 
     IEnumerator FreeSpinRoutine()
     {
-        yield return new WaitForSeconds(1f);
+        uIManager.ToggleFreeSpinPanel(true);
         while (freeSpinCount > 0)
         {
             freeSpinCount--;
+            uIManager.UpdateFreeSpinInfo(freeSpinCount);
+
             yield return SpinRoutine();
             yield return new WaitForSeconds(1);
         }
-        StopFreeSpin();
+        slotManager.ResizeSlotMatrix(0);
+        yield return new WaitForSeconds(1f);
+        uIManager.ToggleFreeSpinPanel(false);
+
+        ToggleButtonGrp(true);
         isAutoSpin = false;
         isSpinning = false;
         isFreeSpin = false;
-        VHcomboList.Clear();
-        ToggleButtonGrp(true);
         yield return null;
     }
     IEnumerator AutoSpinRoutine()
@@ -235,12 +239,36 @@ public class GameManager : MonoBehaviour
 
         yield return OnSpin();
         yield return OnSpinEnd();
+        if (socketController.socketModel.resultGameData.isFreeSpin)
+        {
+            freeSpinCount = socketController.socketModel.resultGameData.freeSpinCount;
+            isFreeSpin = true;
+            specialSpin = false;
+            if (autoSpinRoutine != null)
+            {
+                yield return StopAutoSpinCoroutine();
+            }
 
+            if (freeSpinRoutine != null)
+            {
+                StopCoroutine(freeSpinRoutine);
+                freeSpinStartButton.gameObject.SetActive(false);
+                uIManager.FreeSpinPopup(freeSpinCount);
+                yield return new WaitForSeconds(2f);
+                uIManager.ClosePopup();
+                freeSpinStartButton.gameObject.SetActive(true);
+                freeSpinRoutine = StartCoroutine(FreeSpinRoutine());
+            }
+            else
+                uIManager.FreeSpinPopup(freeSpinCount);
+
+            yield break;
+        }
         if (specialSpin)
         {
-
             yield return SpinRoutine();
         }
+
         if (!isAutoSpin && !isFreeSpin)
         {
             isSpinning = false;
@@ -273,75 +301,66 @@ public class GameManager : MonoBehaviour
         var spinData = new { data = new { currentBet = betCounter, currentLines = 1, spins = 1 }, id = "SPIN" };
         socketController.SendData("message", spinData);
         yield return slotManager.StartSpin();
-        if (audioController) audioController.PlaySpinAudio();
         yield return new WaitUntil(() => socketController.isResultdone);
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(0.35f);
         // slotManager.StopIconAnimation();
         slotManager.PopulateSLotMatrix(socketController.socketModel.resultGameData.resultSymbols);
-        // currentBalance = socketController.socketModel.playerData.Balance;
-
+        currentBalance = socketController.socketModel.playerData.Balance;
         yield return slotManager.StopSpin();
-        if (audioController) audioController.StopSpinAudio();
+        audioController.PlaySpinStopAudio();
+        yield return new WaitForSeconds(0.2f);
+        // if (audioController) 
 
 
     }
     IEnumerator OnSpinEnd()
     {
+        audioController.StopSpinAudio();
+        if (socketController.socketModel.resultGameData.symbolsToEmit.Count > 0)
+        {
+            slotManager.StartIconAnimation(Helper.RemoveDuplicates(socketController.socketModel.resultGameData.symbolsToEmit), socketController.socketModel.resultGameData.resultSymbols.Count);
+            yield return new WaitForSeconds(3f);
+        }
 
-
-        // if (socketController.socketModel.playerData.currentWining > 0)
-        // {
-        //     CheckWinPopups(socketController.socketModel.playerData.currentWining);
-        //     yield return uIManager.WinTextAnim(socketController.socketModel.playerData.currentWining);
-        //     yield return new WaitForSeconds(0.4f);
-        // }
         uIManager.UpdatePlayerInfo(socketController.socketModel.playerData);
 
-        if (socketController.socketModel.resultGameData.isLevelUp && socketController.socketModel.resultGameData.level > 0)
+        if (!isFreeSpin)
         {
-            specialSpin = true;
-            slotManager.ResizeSlotMatrix(socketController.socketModel.resultGameData.level);
+            specialSpin = socketController.socketModel.resultGameData.isLevelUp;
+
+            if (specialSpin)
+            {
+                audioController.PlaySizeUpSound(true);
+                slotManager.ResizeSlotMatrix(socketController.socketModel.resultGameData.level);
+                yield return new WaitForSeconds(1f);
+                audioController.PlaySizeUpSound(false);
+            }
+            else
+            {
+                if (socketController.socketModel.resultGameData.level == 0)
+                {
+                    audioController.PlaySizeUpSound(true);
+                    slotManager.ResizeSlotMatrix(0);
+                    yield return new WaitForSeconds(1f);
+                    audioController.PlaySizeUpSound(false);
+
+                }
+            }
         }
-        else
+        if (socketController.socketModel.playerData.currentWining > 0)
         {
-            specialSpin = false;
-            slotManager.ResizeSlotMatrix(0);
+
+            CheckWinPopups(socketController.socketModel.playerData.currentWining);
+            yield return uIManager.WinTextAnim(socketController.socketModel.playerData.currentWining);
+            audioController.StopWLAaudio();
 
         }
-
-        yield return new WaitForSeconds(1f);
-        audioController.StopWLAaudio();
+        if (isFreeSpin)
+            uIManager.UpdateFreeSpinInfo(winnings: socketController.socketModel.playerData.currentWining);
+        slotManager.StopIconAnimation();
         yield return null;
     }
 
-
-
-
-    IEnumerator InitiateFreeSpin(List<string> VHPos)
-    {
-
-        // freeSpinCount = socketController.socketModel.resultGameData.count;
-        slotManager.disableIconsPanel.SetActive(false);
-        slotManager.IconShakeAnim(VHPos);
-        yield return new WaitForSeconds(1f);
-        slotManager.StartIconBlastAnimation(VHPos, true);
-        yield return new WaitForSeconds(0.15f);
-        slotManager.FreeSpinVHAnim(VHPos, ref VHcomboList);
-        yield return new WaitForSeconds(1f);
-        uIManager.FreeSpinPopup(freeSpinCount);
-        yield return new WaitForSeconds(1.5f);
-        uIManager.CloseFreeSpinPopup();
-    }
-
-    void StopFreeSpin()
-    {
-
-        for (int i = 0; i < VHcomboList.Count; i++)
-        {
-            VHcomboList[i].StopAnimation();
-            VHcomboList[i].gameObject.SetActive(false);
-        }
-    }
 
 
     void ToggleButtonGrp(bool toggle)
@@ -422,27 +441,31 @@ public class GameManager : MonoBehaviour
     }
 
 
-
-
-
-
     void CheckWinPopups(double amount)
     {
-        if (amount >= currentTotalBet * 10 && amount < currentTotalBet * 15)
+        if (amount >= currentTotalBet * 5 && amount < currentTotalBet * 7.5)
         {
             uIManager.EnableWinPopUp(1);
+            audioController.PlayWLAudio("big");
+
         }
-        else if (amount >= currentTotalBet * 15 && amount < currentTotalBet * 20)
+        else if (amount >= currentTotalBet * 7.5 && amount < currentTotalBet * 10)
         {
             uIManager.EnableWinPopUp(2);
+            audioController.PlayWLAudio("big");
+
         }
-        else if (amount >= currentTotalBet * 20)
+        else if (amount >= currentTotalBet * 10)
         {
             uIManager.EnableWinPopUp(3);
+            audioController.PlayWLAudio("big");
+
         }
         else
         {
             uIManager.EnableWinPopUp(0);
+            audioController.PlayWLAudio();
+
         }
     }
 

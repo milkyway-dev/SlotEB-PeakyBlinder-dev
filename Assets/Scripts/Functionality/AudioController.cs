@@ -8,25 +8,26 @@ public class AudioController : MonoBehaviour
     [SerializeField] private AudioSource bg_adudio;
     [SerializeField] private AudioSource audioPlayer_wl;
     [SerializeField] private AudioSource audioPlayer_button;
-    [SerializeField] private AudioSource audioPlayer_Spin;
-    [SerializeField] private AudioSource reelGlow_Sound;
+    [SerializeField] private AudioSource audioPlayer_spin_stop;
+    [SerializeField] private AudioSource sidebar_sound;
 
 
     [Header("clips")]
     [SerializeField] private AudioClip SpinButtonClip;
-    [SerializeField] private AudioClip SpinClip;
+    [SerializeField] private AudioClip SpinStopClip;
     [SerializeField] private AudioClip GambleSpinClip;
     [SerializeField] private AudioClip Button;
-    [SerializeField] private AudioClip Win_Audio;
+    [SerializeField] private AudioClip SmallWin_Audio;
+    [SerializeField] private AudioClip BigWin_Audio;
     [SerializeField] private AudioClip GambleWin_Audio;
     [SerializeField] private AudioClip NormalBg_Audio;
     [SerializeField] private AudioClip FreeSpinBg_Audio;
-    [SerializeField] private AudioClip ReelGlow_audio;
+    [SerializeField] private AudioClip sizeup_audio;
 
 
     private void Awake()
     {
-        reelGlow_Sound.clip=ReelGlow_audio;
+        sidebar_sound.clip=sizeup_audio;
         playBgAudio();
 
         //if (bg_adudio) bg_adudio.Play();
@@ -37,12 +38,13 @@ public class AudioController : MonoBehaviour
     {
         StopWLAaudio();
         // audioPlayer_wl.loop=loop;
-        if (type == "gamble")
-            audioPlayer_wl.clip = GambleWin_Audio;
+        if (type == "big"){
+            audioPlayer_wl.clip = BigWin_Audio;
+            audioPlayer_wl.pitch=1.2f;
+        }
         else
         {
-            audioPlayer_wl.clip = Win_Audio;
-            audioPlayer_wl.pitch = 1.5f;
+            audioPlayer_wl.clip = SmallWin_Audio;
 
         }
 
@@ -50,21 +52,18 @@ public class AudioController : MonoBehaviour
 
     }
 
-    internal void PlaySpinAudio(string type="default")
+    internal void PlaySpinStopAudio( )
     {
-        if(type=="gamble")
-        audioPlayer_Spin.clip = GambleSpinClip;
-        else
-        audioPlayer_Spin.clip = SpinClip;
 
-        audioPlayer_Spin.Play();
+        audioPlayer_spin_stop.clip = SpinStopClip;
+        audioPlayer_spin_stop.Play();
 
     }
 
     internal void StopSpinAudio()
     {
 
-        if (audioPlayer_Spin) audioPlayer_Spin.Stop();
+        if (audioPlayer_spin_stop) audioPlayer_spin_stop.Stop();
 
     }
 
@@ -76,7 +75,7 @@ public class AudioController : MonoBehaviour
             bg_adudio.Pause();
             audioPlayer_wl.Pause();
             audioPlayer_button.Pause();
-            audioPlayer_Spin.Pause();
+            audioPlayer_spin_stop.Pause();
 
         }
         else
@@ -84,7 +83,7 @@ public class AudioController : MonoBehaviour
             bg_adudio.UnPause();
             audioPlayer_wl.UnPause();
             audioPlayer_button.UnPause();
-            audioPlayer_Spin.UnPause();
+            audioPlayer_spin_stop.UnPause();
 
 
         }
@@ -134,11 +133,11 @@ public class AudioController : MonoBehaviour
 
     }
 
-    internal void ReelGlowSound(bool play){
+    internal void PlaySizeUpSound(bool play){
         if(play)
-        reelGlow_Sound.Play();
+        sidebar_sound.Play();
         else
-        reelGlow_Sound.Stop();
+        sidebar_sound.Stop();
 
     }
 
@@ -169,7 +168,7 @@ public class AudioController : MonoBehaviour
                 break;
             case "button":
                 audioPlayer_button.mute = toggle;
-                audioPlayer_Spin.mute = toggle;
+                audioPlayer_spin_stop.mute = toggle;
                 break;
             case "wl":
                 audioPlayer_wl.mute = toggle;
@@ -177,7 +176,7 @@ public class AudioController : MonoBehaviour
             case "all":
                 bg_adudio.mute = toggle;
                 audioPlayer_button.mute = toggle;
-                audioPlayer_Spin.mute = toggle;
+                audioPlayer_spin_stop.mute = toggle;
                 audioPlayer_wl.mute = toggle;
                 break;
 

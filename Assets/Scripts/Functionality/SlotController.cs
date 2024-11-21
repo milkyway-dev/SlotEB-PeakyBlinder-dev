@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Linq;
 using TMPro;
 using System;
+using Best.HTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement;
 
 public class SlotController : MonoBehaviour
 {
@@ -13,6 +14,11 @@ public class SlotController : MonoBehaviour
 
     [Header("Sprites")]
     [SerializeField] private Sprite[] iconImages;
+    [SerializeField] private List<Sprite> wildAnimSprite;
+    [SerializeField] private List<Sprite> timeMachine1Sprite;
+    [SerializeField] private List<Sprite> timeMachine2Sprite;
+    [SerializeField] private List<Sprite> circleAnimSprite;
+    [SerializeField] private List<Sprite> squareAnimSprite;
 
     [Header("Slot Images")]
     [SerializeField] private List<SlotImage> slotMatrix;
@@ -39,16 +45,8 @@ public class SlotController : MonoBehaviour
 
     private Tweener WinTween = null;
 
-    [SerializeField]
-    private List<ImageAnimation> TempList;  //stores the sprites whose animation is running at present 
-
-    [SerializeField] private ImageAnimation[] VHObjectsBlue;
-    [SerializeField] private ImageAnimation[] VHObjectsRed;
-
-    [SerializeField] private ImageAnimation[] reel_border;
-    [SerializeField] internal List<SlotIconView> animatedIcons = new List<SlotIconView>();
-
-    [SerializeField] internal List<List<int>> freezeIndex = new List<List<int>>();
+    [SerializeField] private List<Image> levelIndicator;
+    [SerializeField] internal List<SlotIconView> animatingIcons = new List<SlotIconView>();
 
     internal IEnumerator StartSpin()
     {
@@ -96,7 +94,7 @@ public class SlotController : MonoBehaviour
 
             yield return new WaitForSeconds(0.2f);
         }
-        yield return new WaitForSeconds(0.5f);
+        // yield return new WaitForSeconds(0.2f);
 
         KillAllTweens();
 
@@ -108,8 +106,9 @@ public class SlotController : MonoBehaviour
         {
             for (int j = 0; j < slotMatrix[i].slotImages.Count; j++)
             {
-                int randomIndex = UnityEngine.Random.Range(0, iconImages.Length);
+                int randomIndex = UnityEngine.Random.Range(0, iconImages.Length - 1);
                 slotMatrix[i].slotImages[j].iconImage.sprite = iconImages[randomIndex];
+                slotMatrix[i].slotImages[j].id = randomIndex;
                 slotMatrix[i].slotImages[j].pos = (i * 10 + j);
             }
         }
@@ -117,7 +116,8 @@ public class SlotController : MonoBehaviour
 
     internal void ResizeSlotMatrix(int levelCount)
     {
-        if (levelCount>0 && levelCount<4)
+
+        if (levelCount > 0 && levelCount < 4)
         {
             for (int i = 0; i < 5; i++)
             {
@@ -126,6 +126,28 @@ public class SlotController : MonoBehaviour
         }
 
         level = levelCount;
+        if(level==1){
+            levelIndicator[0].gameObject.SetActive(true);
+            levelIndicator[0].DOColor(Color.white,1f) ;
+        }else if(level==2){
+              levelIndicator[1].gameObject.SetActive(true);
+            levelIndicator[1].DOColor(Color.white,1f) ;
+
+        }else if(level==3){
+            levelIndicator[2].gameObject.SetActive(true);
+            levelIndicator[2].DOColor(Color.white,1f) ;
+
+        }else if(level==4){
+            levelIndicator[3].gameObject.SetActive(true);
+            levelIndicator[3].DOColor(Color.white,1f) ;
+
+        }else if(level ==0){
+            foreach (var item in levelIndicator)
+            {
+                item.color= new Color(1,1,1,0);
+                item.gameObject.SetActive(false);
+            }
+        }
         Vector2 sizeDelta = mask_transform.sizeDelta;
 
         float iconHeight = sizeDelta.y / (3 + level);
@@ -141,13 +163,13 @@ public class SlotController : MonoBehaviour
 
         if (level == 0)
         {
-            sideBars[0].DOLocalMoveX(iconWidth * 2 + 50, 1f);
-            sideBars[1].DOLocalMoveX(-iconWidth * 2 - 50, 1f);
+            sideBars[0].DOLocalMoveX(iconWidth * 2 + 35, 1f);
+            sideBars[1].DOLocalMoveX(-iconWidth * 2 - 35, 1f);
         }
         else
         {
-            sideBars[0].DOLocalMoveX(iconWidth * 2 - (level - 1) * 15, 1f);
-            sideBars[1].DOLocalMoveX(-iconWidth * 2 + (level - 1) * 15, 1f);
+            sideBars[0].DOLocalMoveX(iconWidth * 2 - (level - 1) * 20, 1f);
+            sideBars[1].DOLocalMoveX(-iconWidth * 2 + (level - 1) * 20, 1f);
         }
 
         for (int i = 0; i < Slot_Transform.Length; i++)
@@ -175,68 +197,46 @@ public class SlotController : MonoBehaviour
 
     }
 
-    internal void StartIconBlastAnimation(List<string> iconPos, bool opposite = false)
+    internal void StartIconAnimation(List<string> iconPos, int matrixlength)
     {
-        // IconController tempIcon; 
-        // for (int j = 0; j < iconPos.Count; j++)
-        // {
-        //     SlotIconView tempIcon;
-        //     int[] pos = iconPos[j].Split(',').Select(int.Parse).ToArray();
-        //     if (opposite)
-        //         tempIcon = slotMatrix[pos[1]].slotImages[pos[0]];
-        //     else
-        //         tempIcon = slotMatrix[pos[0]].slotImages[pos[1]];
-
-        //     tempIcon.blastAnim.SetActive(true);
-        //     tempIcon.blastAnim.transform.DOScale(new Vector2(1.1f, 1.1f), 0.35f).SetEase(Ease.OutBack).OnComplete(() =>
-        //     {
-        //         tempIcon.blastAnim.SetActive(false);
-        //         tempIcon.frontBorder.SetActive(true);
-        //     });
-        //     tempIcon.transform.SetParent(disableIconsPanel.transform.parent);
-        //     if (!animatedIcons.Any(icon => icon.pos == tempIcon.pos))
-        //         animatedIcons.Add(tempIcon);
-        // }
-
-    }
-
-
-    internal void FreeSpinVHAnim(List<string> pos, ref List<ImageAnimation> VHcombo)
-    {
-        for (int i = 0; i < pos.Count; i++)
+        for (int j = 0; j < iconPos.Count; j++)
         {
-            if (i % 2 != 0) continue;
+            ;
+            int[] pos = iconPos[j].Split(',').Select(int.Parse).ToArray();
+            Debug.Log("row,col" + ((7 - matrixlength) + pos[1]) + "," + pos[0]);
+            SlotIconView tempIcon = slotMatrix[pos[0]].slotImages[(4 - level) + pos[1]];
+            if (tempIcon.id == 10)
+                tempIcon.StartAnim(wildAnimSprite);
+            else if (tempIcon.id == 9)
+                tempIcon.StartAnim(timeMachine2Sprite);
+            else if (tempIcon.id == 8)
+                tempIcon.StartAnim(timeMachine1Sprite);
+            else if (tempIcon.id == 6 || tempIcon.id == 7)
+                tempIcon.StartAnim(squareAnimSprite);
+            else if (tempIcon.id == 11)
+                tempIcon.StartAnim(circleAnimSprite);
+            else if (tempIcon.id < 6)
+                tempIcon.StartAnim(circleAnimSprite);
 
-            int[] iconPos = pos[i].Split(',').Select(int.Parse).ToArray();
-            if (iconPos[1] == 1)
-            {
-                VHObjectsRed[iconPos[0]].gameObject.SetActive(true);
-                VHObjectsRed[iconPos[0]].StartAnimation();
-                VHObjectsRed[iconPos[0]].transform.DOPunchScale(new Vector3(0.4f, 0.4f, 0), 0.3f, 0, 1.2f);
-                VHcombo.Add(VHObjectsRed[iconPos[0]]);
-            }
-            else if (iconPos[1] == 3)
-            {
-                VHObjectsBlue[iconPos[0]].gameObject.SetActive(true);
-                VHObjectsBlue[iconPos[0]].StartAnimation();
-                VHObjectsBlue[iconPos[0]].transform.DOPunchScale(new Vector3(0.4f, 0.4f, 0), 0.3f, 0, 1.2f);
-                VHcombo.Add(VHObjectsBlue[iconPos[0]]);
-
-            }
-
+            animatingIcons.Add(tempIcon);
         }
 
     }
 
-    internal void IconShakeAnim(List<string> vhPos)
+    internal void StopIconAnimation()
     {
-        int[] pos;
-        for (int i = 0; i < vhPos.Count; i++)
-        {
-            pos = vhPos[i].Split(',').Select(int.Parse).ToArray();
-            slotMatrix[pos[1]].slotImages[pos[0]].transform.DOShakePosition(1f, strength: new Vector3(25, 25, 0), vibrato: 20, randomness: 90, fadeOut: true);
 
+        foreach (var item in animatingIcons)
+        {
+            item.StopAnim();
+            // yield return new WaitUntil(() => item.activeanimation.currentAnimationState == ImageAnimation.ImageState.NONE);
+            // for (int i = item.activeanimation.textureArray.Count - 1; i > 0; i--)
+            // {
+            //     item.activeanimation.textureArray.RemoveAt(i);
+            // }
         }
+
+        animatingIcons.Clear();
     }
 
 
