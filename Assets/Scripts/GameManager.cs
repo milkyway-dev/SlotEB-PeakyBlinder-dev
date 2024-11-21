@@ -5,8 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using System;
-using DG.Tweening;
-using UnityEditor.PackageManager;
 public class GameManager : MonoBehaviour
 {
     [Header("scripts")]
@@ -246,7 +244,7 @@ public class GameManager : MonoBehaviour
             specialSpin = false;
             if (autoSpinRoutine != null)
             {
-                yield return StopAutoSpinCoroutine();
+                yield return StopAutoSpinCoroutine(true);
             }
 
             if (freeSpinRoutine != null)

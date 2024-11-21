@@ -5,7 +5,6 @@ using System;
 using Newtonsoft.Json.Linq;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
-using JetBrains.Annotations;
 
 public class SocketModel 
 {

@@ -4,9 +4,7 @@ using UnityEngine;
 using DG.Tweening;
 using UnityEngine.UI;
 using System.Linq;
-using TMPro;
 using System;
-using Best.HTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement;
 
 public class SlotController : MonoBehaviour
 {
