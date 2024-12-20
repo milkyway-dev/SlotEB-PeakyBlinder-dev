@@ -212,6 +212,7 @@ for (int i = 0; i < AutoSpinsButtons.Length; i++)
             autoSpinText.text = noOfSPin.ToString();
 
             yield return SpinRoutine();
+            
             yield return new WaitForSeconds(0.5f);
 
         }
