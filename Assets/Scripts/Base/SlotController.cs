@@ -44,7 +44,7 @@ public class SlotController : MonoBehaviour
     [SerializeField] private float tweenHeight = 0;
     [SerializeField] private float initialPos;
 
-
+    [SerializeField] private GameObject[] border;
 
     private List<Tweener> alltweens = new List<Tweener>();
 
@@ -69,8 +69,8 @@ public class SlotController : MonoBehaviour
         {
             for (int i = 0; i < coins.Count; i++)
             {
-                if(coins[i][3]==13)
-                slotMatrix[(int)coins[i][0]].slotImages[(int)coins[i][1]].SetCoin(coins[i][2]);
+                if (coins[i][3] == 13)
+                    slotMatrix[(int)coins[i][0]].slotImages[(int)coins[i][1]].SetCoin(coins[i][2]);
             }
         }
 
@@ -104,13 +104,41 @@ public class SlotController : MonoBehaviour
         // matrixRowCount++;
 
     }
-    internal IEnumerator StopSpin(bool ignore = true, Action playStopSound=null)
+    internal IEnumerator StopSpin(bool ignore = true, Action playStopSound = null)
     {
+        GameObject activeBorder = null;
 
         for (int i = 0; i < Slot_Transform.Length; i++)
         {
+            float increasePlayDuration=0;
+            if (activeBorder != null)
+                activeBorder.SetActive(false);
+
+            for (int j = 0; j < SocketModel.resultGameData.ResultReel.Count; j++)
+            {
+                if (SocketModel.resultGameData.ResultReel[j][i] >= 13)
+                {
+
+                    if (i + 1 < border.Length)
+                    {
+                        Debug.Log("eneterd");
+                        border[i + 1].transform.localScale = new Vector3(1, 0, 1);
+                        border[i + 1].SetActive(true);
+                        border[i + 1].transform.DOScaleY(1, 0.2f);
+                        activeBorder = border[i + 1];
+                        increasePlayDuration=1f;
+                        yield return new WaitForSeconds(1f);
+                        break;
+                    }
+
+
+                }
+            }
+
             StopTweening(Slot_Transform[i], i);
             yield return new WaitForSeconds(0.1f);
+            if(increasePlayDuration>0)
+            yield return new WaitForSeconds(increasePlayDuration);
             playStopSound?.Invoke();
             if (ignore)
                 IgnoreMask(i);
@@ -191,6 +219,7 @@ public class SlotController : MonoBehaviour
 
             int[] pos = iconPos[i].Split(',').Select(int.Parse).ToArray();
             slotMatrix[pos[0]].slotImages[pos[1]].SetParent(paylineSymbolAnimPanel);
+
             // if (!animatingIcons.Any(x => x.pos == slotMatrix[pos[0]].slotImages[pos[1]].pos))
             //     animatingIcons.Add(slotMatrix[pos[0]].slotImages[pos[1]]);
         }
@@ -236,10 +265,7 @@ public class SlotController : MonoBehaviour
         alltweens[index].Pause();
         slotTransform.localPosition = new Vector2(slotTransform.localPosition.x, initialPos + 265);
         alltweens[index] = slotTransform.DOLocalMoveY(initialPos, 0.2f).SetEase(Ease.OutElastic);
-
     }
-
-
     private void KillAllTweens()
     {
         for (int i = 0; i < alltweens.Count; i++)
