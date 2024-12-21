@@ -12,32 +12,43 @@ public class ThunderFreeSpinController : MonoBehaviour
 
     float totalDelay;
 
-    internal Action<int, double> updateUI;
+    internal Action<int, double> UpdateUI;
     Coroutine Spin;
 
     internal Func<Action, Action, bool, bool, float, float, IEnumerator> SpinRoutine;
 
     [SerializeField] GameObject horizontalbar;
+
+    internal Action<int, GameObject> FreeSpinPopUP;
+    internal Action<GameObject> FreeSpinPopUpClose;
+
+    [SerializeField] GameObject thunderSpinBg;
     internal IEnumerator StartFP(List<List<double>> froxenIndeces, int count)
     {
-
+        FreeSpinPopUP?.Invoke(count, thunderSpinBg);
+        yield return new WaitForSeconds(2);
+        FreeSpinPopUpClose?.Invoke(thunderSpinBg);
         horizontalbar.SetActive(true);
         Initiate(froxenIndeces);
-        int i = 0;
-        while (i < count)
+        while (count > 0)
         {
+            count--;
+            UpdateUI?.Invoke(count, -1);
+
             Spin = StartCoroutine(SpinRoutine(null, CloseIcon, false, true, 0, totalDelay));
             yield return Spin;
             ResetIcon(false);
-            i++;
-            updateUI(count - i, 0);
             if (SocketModel.resultGameData.thunderSpinAdded)
             {
                 if (Spin != null)
                     StopCoroutine(Spin);
+                int prevFreeSpin = count;
                 count = SocketModel.resultGameData.thunderSpinCount;
-                i = 0;
-                updateUI(count, 0);
+                int freeSpinAdded = count - prevFreeSpin;
+                FreeSpinPopUP?.Invoke(freeSpinAdded, null);
+                UpdateUI(count, 0);
+                yield return new WaitForSeconds(1.5f);
+                FreeSpinPopUpClose?.Invoke(null);
             }
             if (SocketModel.resultGameData.isGrandPrize)
                 break;

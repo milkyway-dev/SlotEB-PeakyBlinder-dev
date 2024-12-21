@@ -23,25 +23,46 @@ public class TommyFPController : MonoBehaviour
     Coroutine spin;
 
     internal Action<int, double> UpdateUI;
+
+    internal Action<int, GameObject> FreeSpinPopUP;
+    internal Action<GameObject> FreeSpinPopUpClose;
+    [SerializeField] GameObject tommySpinBg;
+
+    [SerializeField] internal ThunderFreeSpinController thunderFP;
     internal IEnumerator StartFP(int count)
     {
+        FreeSpinPopUP?.Invoke(count, tommySpinBg);
+        yield return new WaitForSeconds(2);
+        FreeSpinPopUpClose?.Invoke(tommySpinBg);
         colossalSlot.parent.gameObject.SetActive(true);
-
         while (count > 0)
         {
             count--;
-            UpdateUI?.Invoke(count,-1);
+            UpdateUI?.Invoke(count, -1);
             yield return spin = StartCoroutine(SpinRoutine(StartColossalSpin, StopTweening, false, false, 0.5f, 0.5f));
-            UpdateUI?.Invoke(-1,SocketModel.playerData.currentWining);
+            UpdateUI?.Invoke(-1, SocketModel.playerData.currentWining);
             if (SocketModel.resultGameData.freeSpinAdded)
             {
                 if (spin != null)
                     StopCoroutine(spin);
                 int prevFreeSpin = count;
                 count = SocketModel.resultGameData.freeSpinCount;
-                int freeSpinAdded=count - prevFreeSpin;
-                
+                int freeSpinAdded = count - prevFreeSpin;
+                FreeSpinPopUP?.Invoke(freeSpinAdded, null);
+                UpdateUI?.Invoke(count, -1);
                 yield return new WaitForSeconds(1.5f);
+                FreeSpinPopUpClose?.Invoke(null);
+
+            }
+
+            if (SocketModel.resultGameData.thunderSpinCount > 0)
+            {
+                if (spin != null)
+                    StopCoroutine(spin);
+
+                yield return thunderFP.StartFP(
+                froxenIndeces: SocketModel.resultGameData.frozenIndices,
+                count: SocketModel.resultGameData.thunderSpinCount);
 
             }
 

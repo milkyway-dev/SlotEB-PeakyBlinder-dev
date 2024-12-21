@@ -69,11 +69,11 @@ public class SlotController : MonoBehaviour
         {
             for (int i = 0; i < coins.Count; i++)
             {
+                if(coins[i][3]==13)
                 slotMatrix[(int)coins[i][0]].slotImages[(int)coins[i][1]].SetCoin(coins[i][2]);
             }
         }
 
-        Debug.Log(JsonConvert.SerializeObject(resultData));
         for (int i = 0; i < resultData.Count; i++)
         {
             for (int j = 0; j < resultData[i].Count; j++)

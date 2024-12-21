@@ -41,6 +41,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text[] SymbolsText;
     [SerializeField] private TMP_Text[] BonusSymbolsText;
     [SerializeField] private TMP_Text Wild_Text;
+    [SerializeField] private TMP_Text[] mini_grand_text; 
 
 
 
@@ -219,41 +220,14 @@ public class UIManager : MonoBehaviour
 
     internal void ToggleFreeSpinPanel(bool toggle)
     {
-
         freeSpinPanel.SetActive(toggle);
         gameButtonPanel.SetActive(!toggle);
 
-
     }
 
-    internal void EnablePurplebar(bool enable)
-    {
 
-        if (enable)
-        {
-            purpleBar[0].color = Color.white;
-            purpleBar[1].color = Color.white;
-        }
-        else
-        {
-            purpleBar[0].DOFade(0, 1f);
-            purpleBar[1].DOFade(0, 1f);
-        }
 
-    }
 
-    internal void FreeSpinTextAnim()
-    {
-
-        freeSpinText.localScale *= 0; ;
-        freeSpinText.gameObject.SetActive(true);
-        freeSpinText.DOScale(2, 0.65f).OnComplete(() =>
-        {
-
-            freeSpinText.DOScale(0, 0.65f).OnComplete(() => freeSpinText.gameObject.SetActive(false));
-        });
-
-    }
     internal void ADfunction()
     {
         OpenPopup(ADPopup_Object);
@@ -273,7 +247,26 @@ public class UIManager : MonoBehaviour
 
         }
 
-        Wild_Text.text = uIData.symbols[10].description.ToString();
+        // Wild_Text.text = uIData.symbols[10].description.ToString();
+
+        for (int i = 0; i < uIData.specialBonusSymbolMulipliers.Count; i++)
+        {
+            text= "";
+            if(uIData.specialBonusSymbolMulipliers[i].name=="Mini Multiplier"){
+                mini_grand_text[0].text=uIData.specialBonusSymbolMulipliers[i].value.ToString();
+            }
+            else if(uIData.specialBonusSymbolMulipliers[i].name=="Major Multiplier"){
+                mini_grand_text[1].text=uIData.specialBonusSymbolMulipliers[i].value.ToString();
+            }
+            else if(uIData.specialBonusSymbolMulipliers[i].name=="Mega Multiplier"){
+                mini_grand_text[2].text=uIData.specialBonusSymbolMulipliers[i].value.ToString();
+            }
+            else if(uIData.specialBonusSymbolMulipliers[i].name=="Grand Multiplier"){
+                mini_grand_text[3].text=uIData.specialBonusSymbolMulipliers[i].value.ToString();
+            }
+            
+            
+        }
 
     }
 
@@ -335,20 +328,20 @@ public class UIManager : MonoBehaviour
 
 
 
-    internal void FreeSpinPopup(int amount, bool enableBg)
+    internal void FreeSpinPopup(int amount, GameObject Bg)
     {
         FreeSpinCount.text = amount.ToString();
         OpenPopup(FreeSPinPopUpObject);
-        if (enableBg)
-            freeSpinBg.SetActive(true);
+        if (Bg)
+            Bg.SetActive(true);
     }
 
-    internal void CloseFreeSpinPopup()
+    internal void CloseFreeSpinPopup(GameObject Bg)
     {
         ClosePopup();
         FreeSpinCount.text = "0";
-        if (freeSpinBg.activeSelf)
-            freeSpinBg.SetActive(false);
+        if (Bg && Bg.activeSelf)
+            Bg.SetActive(false);
     }
     internal void EnableWinPopUp(int value)
     {
