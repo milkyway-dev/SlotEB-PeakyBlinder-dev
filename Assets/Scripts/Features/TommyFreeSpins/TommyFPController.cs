@@ -8,16 +8,14 @@ using Newtonsoft.Json;
 public class TommyFPController : MonoBehaviour
 {
     [SerializeField] Transform colossalSlot;
-    [SerializeField] Image colossalIcon;
+    [SerializeField] ImageAnimation colossalIcon;
 
     [SerializeField] float tweenHeight;
 
     [SerializeField] float initialPos;
 
-    [SerializeField] Material dissolveMaterial;
     Tweener alltweens;
 
-    [SerializeField] internal List<Sprite> spriteRef;
     internal Func<Action, Action, bool, bool, float, float, IEnumerator> SpinRoutine;
 
     Coroutine spin;
@@ -29,6 +27,21 @@ public class TommyFPController : MonoBehaviour
     [SerializeField] GameObject tommySpinBg;
 
     [SerializeField] internal ThunderFreeSpinController thunderFP;
+    [SerializeField] internal Sprite[] iconImages;
+
+    [Header("Animation Sprites")]
+    [SerializeField] private List<Sprite> ID_0;
+    [SerializeField] private List<Sprite> ID_1;
+    [SerializeField] private List<Sprite> ID_2;
+    [SerializeField] private List<Sprite> ID_3;
+    [SerializeField] private List<Sprite> ID_4;
+    [SerializeField] private List<Sprite> ID_5;
+    [SerializeField] private List<Sprite> ID_6;
+    [SerializeField] private List<Sprite> ID_7;
+    [SerializeField] private List<Sprite> ID_8;
+    [SerializeField] private List<Sprite> ID_9;
+    [SerializeField] private List<Sprite> ID_10;
+
     internal IEnumerator StartFP(int count)
     {
         FreeSpinPopUP?.Invoke(count, tommySpinBg);
@@ -73,6 +86,7 @@ public class TommyFPController : MonoBehaviour
     }
     private void StartColossalSpin()
     {
+        colossalIcon.StopAnimation();
         colossalSlot.transform.localPosition = new Vector3(-270 + FindColIndex() * 270, colossalSlot.transform.localPosition.y);
         colossalIcon.transform.localScale = new Vector2(0, 0);
         colossalSlot.gameObject.SetActive(true);
@@ -92,26 +106,27 @@ public class TommyFPController : MonoBehaviour
         colossalSlot.localPosition = new Vector2(colossalSlot.localPosition.x, initialPos + 680);
         alltweens = colossalSlot.DOLocalMoveY(initialPos, 0.2f).OnComplete(() =>
         {
-            StartCoroutine(StartDissolvAnim());
+            colossalIcon.StartAnimation();
+            // StartCoroutine(StartDissolvAnim());
         });
 
     }
 
-    IEnumerator StartDissolvAnim()
-    {
-        colossalIcon.material = dissolveMaterial;
+    // IEnumerator StartDissolvAnim()
+    // {
+    //     colossalIcon.StartAnimation();
 
-        float currentThreshold = 0;
-        while (currentThreshold <= 1)
-        {
-            colossalIcon.material.SetFloat("_Threshold", currentThreshold);
-            currentThreshold += Time.deltaTime;
-            yield return null;
-        }
-        colossalSlot.gameObject.SetActive(false);
-        colossalIcon.material.SetFloat("_Threshold", 0);
-        colossalIcon.material = null;
-    }
+    //     float currentThreshold = 0;
+    //     while (currentThreshold <= 1)
+    //     {
+    //         colossalIcon.material.SetFloat("_Threshold", currentThreshold);
+    //         currentThreshold += Time.deltaTime;
+    //         yield return null;
+    //     }
+    //     colossalSlot.gameObject.SetActive(false);
+    //     colossalIcon.material.SetFloat("_Threshold", 0);
+    //     colossalIcon.material = null;
+    // }
 
     private int FindColIndex()
     {
@@ -124,15 +139,68 @@ public class TommyFPController : MonoBehaviour
             if (i + 2 < convertedmatrix.Count)
             {
 
-                if (convertedmatrix[i] == convertedmatrix[i + 1] && convertedmatrix[i + 1] == convertedmatrix[i + 2])
+                if (convertedmatrix[i] == convertedmatrix[i + 1] && convertedmatrix[i + 1] == convertedmatrix[i + 2]){
+                index = i;
+                PopulateSpriteNAnim(i);
+                break;
+                }
 
-                    index = i;
-                colossalIcon.sprite = spriteRef[SocketModel.resultGameData.ResultReel[0][i]];
             }
         }
 
         return index;
 
 
+    }
+
+    void PopulateSpriteNAnim(int id){
+        colossalIcon.textureArray.Clear();
+        switch(id){
+        case 0:
+        colossalIcon.rendererDelegate.sprite=ID_0[0];
+        colossalIcon.textureArray.AddRange(ID_0);
+        break;
+        case 1:
+        colossalIcon.rendererDelegate.sprite=ID_1[0];
+        colossalIcon.textureArray.AddRange(ID_1);
+        break;
+        case 2:
+        colossalIcon.rendererDelegate.sprite=ID_2[0];
+        colossalIcon.textureArray.AddRange(ID_2);
+        break;
+        case 3:
+        colossalIcon.rendererDelegate.sprite=ID_3[0];
+        colossalIcon.textureArray.AddRange(ID_3);
+        break;
+        case 4:
+        colossalIcon.rendererDelegate.sprite=ID_4[0];
+        colossalIcon.textureArray.AddRange(ID_4);
+        break;
+        case 5:
+        colossalIcon.rendererDelegate.sprite=ID_5[0];
+        colossalIcon.textureArray.AddRange(ID_5);
+        break;
+        case 6:
+        colossalIcon.rendererDelegate.sprite=ID_6[0];
+        colossalIcon.textureArray.AddRange(ID_6);
+        break;
+        case 7:
+        colossalIcon.rendererDelegate.sprite=ID_7[0];
+        colossalIcon.textureArray.AddRange(ID_7);
+        break;
+        case 8:
+        colossalIcon.rendererDelegate.sprite=ID_8[0];
+        colossalIcon.textureArray.AddRange(ID_8);
+        break;
+        case int n when n > 8 && n < 13:
+        colossalIcon.rendererDelegate.sprite=ID_9[0];
+        colossalIcon.textureArray.AddRange(ID_9);
+        break;
+        case int n when n >= 13:
+        colossalIcon.rendererDelegate.sprite=ID_10[0];
+        colossalIcon.textureArray.AddRange(ID_10);
+        break;
+
+        }
     }
 }

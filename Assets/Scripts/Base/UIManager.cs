@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using System.Linq;
 using TMPro;
 using System;
+using System.Text;
 public class UIManager : MonoBehaviour
 {
 
@@ -41,7 +42,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text[] SymbolsText;
     [SerializeField] private TMP_Text[] BonusSymbolsText;
     [SerializeField] private TMP_Text Wild_Text;
-    [SerializeField] private TMP_Text[] mini_grand_text; 
+    [SerializeField] private TMP_Text[] mini_grand_text;
 
 
 
@@ -62,6 +63,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private Sprite[] winTitleSprites;
     [SerializeField] private GameObject WinPopup_Object;
     [SerializeField] private TMP_Text Win_Text;
+    [SerializeField] private Button cancelWinButton;
 
 
     [Header("low balance popup")]
@@ -115,6 +117,7 @@ public class UIManager : MonoBehaviour
 
     internal Action OnExit;
 
+    Tweener normalWinTween;
     private void Awake()
     {
         //if (spalsh_screen) spalsh_screen.SetActive(true);
@@ -147,9 +150,9 @@ public class UIManager : MonoBehaviour
         SetButton(Close_Button, ClosePopup);
         SetButton(QuitSplash_button, () => OpenPopup(QuitPopupObject));
         SetButton(AutoSpinButton, () => OpenPopup(autoSpinPopupObject));
-        SetButton(betButton,()=>OpenPopup(betPopupObject));
+        SetButton(betButton, () => OpenPopup(betPopupObject));
         SetButton(AutoSpinPopUpClose, () => ClosePopup());
-        SetButton(BetPopupClose,()=>ClosePopup());
+        SetButton(BetPopupClose, () => ClosePopup());
         // Initialize other settings
         isMusic = false;
         isSound = false;
@@ -251,21 +254,25 @@ public class UIManager : MonoBehaviour
 
         for (int i = 0; i < uIData.specialBonusSymbolMulipliers.Count; i++)
         {
-            text= "";
-            if(uIData.specialBonusSymbolMulipliers[i].name=="Mini Multiplier"){
-                mini_grand_text[0].text=uIData.specialBonusSymbolMulipliers[i].value.ToString();
+            text = "";
+            if (uIData.specialBonusSymbolMulipliers[i].name == "Mini Multiplier")
+            {
+                mini_grand_text[0].text = uIData.specialBonusSymbolMulipliers[i].value.ToString();
             }
-            else if(uIData.specialBonusSymbolMulipliers[i].name=="Major Multiplier"){
-                mini_grand_text[1].text=uIData.specialBonusSymbolMulipliers[i].value.ToString();
+            else if (uIData.specialBonusSymbolMulipliers[i].name == "Major Multiplier")
+            {
+                mini_grand_text[1].text = uIData.specialBonusSymbolMulipliers[i].value.ToString();
             }
-            else if(uIData.specialBonusSymbolMulipliers[i].name=="Mega Multiplier"){
-                mini_grand_text[2].text=uIData.specialBonusSymbolMulipliers[i].value.ToString();
+            else if (uIData.specialBonusSymbolMulipliers[i].name == "Mega Multiplier")
+            {
+                mini_grand_text[2].text = uIData.specialBonusSymbolMulipliers[i].value.ToString();
             }
-            else if(uIData.specialBonusSymbolMulipliers[i].name=="Grand Multiplier"){
-                mini_grand_text[3].text=uIData.specialBonusSymbolMulipliers[i].value.ToString();
+            else if (uIData.specialBonusSymbolMulipliers[i].name == "Grand Multiplier")
+            {
+                mini_grand_text[3].text = uIData.specialBonusSymbolMulipliers[i].value.ToString();
             }
-            
-            
+
+
         }
 
     }
@@ -275,14 +282,18 @@ public class UIManager : MonoBehaviour
 
         for (int i = 0; i < betValueButtons.Length; i++)
         {
-            if(i< bets.Count){
-                int index=i;
-            betTexts[index].text = bets[index].ToString();
-            betValueButtons[index].onClick.AddListener(() => {
-                onclick(index);
-                ClosePopup();
-            });
-            }else{
+            if (i < bets.Count)
+            {
+                int index = i;
+                betTexts[index].text = bets[index].ToString();
+                betValueButtons[index].onClick.AddListener(() =>
+                {
+                    onclick(index);
+                    ClosePopup();
+                });
+            }
+            else
+            {
                 betValueButtons[i].gameObject.SetActive(false);
             }
         }
@@ -380,19 +391,34 @@ public class UIManager : MonoBehaviour
 
     internal IEnumerator WinTextAnim(double amount)
     {
-        Win_Text.text = amount.ToString();
-        Win_Text.transform.localScale *= 4;
-        Color InitCOlor = Win_Text.color;
-        Win_Text.color = new Color(0, 0, 0, 0);
-        Win_Text.transform.DOScale(Vector2.one, 1f);
-        Win_Text.DOColor(InitCOlor, 1f);
+        double initAmount = 0;
+        DOTween.To(() => initAmount, (val) => initAmount = val, amount, 2f).OnUpdate(() =>
+        {
+            Win_Text.text = initAmount.ToString("f3");
+
+        }).OnComplete(() =>
+        {
+            Win_Text.text = amount.ToString();
+        });
+
         yield return new WaitForSeconds(3f);
         ClosePopup();
         if (specialWinObject.activeSelf)
             specialWinObject.SetActive(false);
+            
+        yield return null;
 
 
 
+    }
+
+
+    internal void NormalWinAnimation(){
+            normalWinTween=playerCurrentWinning.transform.DOScale(1.2f,1f).SetLoops(-1,LoopType.Yoyo);
+    }
+    internal void StopNormalWinAnimation(){
+            normalWinTween.Kill();
+            playerCurrentWinning.transform.localScale= Vector2.one;
     }
     internal void DisconnectionPopup()
     {

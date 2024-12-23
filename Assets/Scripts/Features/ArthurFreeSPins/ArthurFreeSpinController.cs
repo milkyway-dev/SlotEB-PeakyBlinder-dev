@@ -178,6 +178,7 @@ public class ArthurFreeSpinController : MonoBehaviour
 
     IEnumerator PlayCutAnimation()
     {
+        blade.gameObject.SetActive(true);
         for (int j = 0; j < slotMatrix[0].slotImages.Count; j++)
         {
             blade.DOLocalMoveX(1600 * (j % 2 == 0 ? 1 : -1), 0.35f).OnComplete(() => blade.transform.localPosition += new Vector3(0, -225, 0));
@@ -194,6 +195,7 @@ public class ArthurFreeSpinController : MonoBehaviour
 
         }
         yield return new WaitForSeconds(0.5f);
+        blade.gameObject.SetActive(false);
         blade.transform.localPosition = new Vector3(-1600, 360, 0);
 
     }
