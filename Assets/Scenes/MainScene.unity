@@ -19415,6 +19415,7 @@ MonoBehaviour:
   Bet_Button: {fileID: 260608360}
   totalBet_text: {fileID: 69738317}
   isSpinning: 0
+  infoButton: {fileID: 1312622148}
   paylineSymbolAnimPanel: {fileID: 662376420}
   StopSpinButton: {fileID: 1131548575}
   TurboButton: {fileID: 308362221}

@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button Bet_Button;
     [SerializeField] private TMP_Text totalBet_text;
     [SerializeField] private bool isSpinning;
+    [SerializeField] private Button infoButton;
     [SerializeField] private Transform paylineSymbolAnimPanel;
     [SerializeField] private Button StopSpinButton;
     [SerializeField] private Button TurboButton;
@@ -576,7 +577,7 @@ public class GameManager : MonoBehaviour
         if (AutoSpinPopup_Button) AutoSpinPopup_Button.interactable = toggle;
         if (Bet_Button) Bet_Button.interactable = toggle;
         uIManager.Settings_Button.interactable = toggle;
-        // if (TurboButton) TurboButton.interactable = toggle;
+        if (infoButton) infoButton.interactable = toggle;
     }
 
     private void OnBetChange(int index)
