@@ -206,13 +206,13 @@ public class GameManager : MonoBehaviour
             autoSpinCounter++;
             if (autoSpinCounter > maxAutoSpinValue)
             {
-                autoSpinCounter=0;
+                autoSpinCounter=1;
             }
         }
         else
         {
                 autoSpinCounter--;
-            if (autoSpinCounter < 0)
+            if (autoSpinCounter < 1)
             {
                 autoSpinCounter=maxAutoSpinValue;
 
