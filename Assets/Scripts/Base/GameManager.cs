@@ -254,6 +254,10 @@ public class GameManager : MonoBehaviour
             totalLies = SocketModel.initGameData.lineData.Count;
             currentTotalBet = SocketModel.initGameData.Bets[betCounter] * totalLies;
             currentBalance = SocketModel.playerData.Balance;
+            if (currentBalance < currentTotalBet)
+            {
+                uIManager.LowBalPopup();
+            }
             payLineController.paylines.AddRange(SocketModel.initGameData.lineData);
             if (totalBet_text) totalBet_text.text = currentTotalBet.ToString();
             uIManager.UpdatePlayerInfo(SocketModel.playerData);
@@ -585,7 +589,7 @@ public class GameManager : MonoBehaviour
         SingleLoopAnimation(true);
 
         uIManager.UpdatePlayerInfo(SocketModel.playerData);
-        if (SocketModel.resultGameData.freeSpinIndices.Count > 0 || SocketModel.resultGameData.frozenIndices.Count>0 || SocketModel.resultGameData.linesToEmit.Count>0)
+        if (SocketModel.resultGameData.freeSpinIndices.Count > 0 || SocketModel.resultGameData.frozenIndices.Count > 0 || SocketModel.resultGameData.linesToEmit.Count > 0)
             yield return new WaitForSeconds(1f);
 
         audioController.StopWLAaudio();
@@ -625,7 +629,7 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
-    private void SingleLoopAnimation(bool showall=false)
+    private void SingleLoopAnimation(bool showall = false)
     {
         if (SocketModel.resultGameData.symbolsToEmit.Count > 0)
         {
@@ -642,8 +646,8 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        if(!showall)
-        return;
+        if (!showall)
+            return;
 
         if (SocketModel.resultGameData.frozenIndices.Count > 0 && !isFreeSpin && !thunderFreeSpins)
         {
