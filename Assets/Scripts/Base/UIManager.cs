@@ -237,6 +237,8 @@ public class UIManager : MonoBehaviour
     internal void ToggleFreeSpinPanel(bool toggle)
     {
         freeSpinPanel.SetActive(toggle);
+        if(!toggle)
+        UpdateFreeSpinInfo(0,0);
         gameButtonPanel.SetActive(!toggle);
 
     }
@@ -386,6 +388,7 @@ public class UIManager : MonoBehaviour
     internal void CloseFreeSpinPopup(GameObject Bg)
     {
         ClosePopup();
+        // UpdateFreeSpinInfo(0,0);
         FreeSpinCount.text = "0";
         if (Bg && Bg.activeSelf)
             Bg.SetActive(false);
@@ -438,7 +441,7 @@ public class UIManager : MonoBehaviour
 
         }).OnComplete(() =>
         {
-            Win_Text.text = amount.ToString();
+            Win_Text.text = amount.ToString("f3");
         });
 
         yield return new WaitForSeconds(3f);
@@ -475,7 +478,7 @@ public class UIManager : MonoBehaviour
         if (freespinCount >= 0)
             freeSpinInfo.text = freespinCount.ToString();
         if (winnings >= 0)
-            freeSpinWinnings.text = winnings.ToString();
+            freeSpinWinnings.text = winnings.ToString("f3");
     }
     internal void UpdateThunderSpinInfo(int freespinCount = -1)
     {
