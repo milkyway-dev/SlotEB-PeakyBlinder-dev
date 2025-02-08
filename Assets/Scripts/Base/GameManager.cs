@@ -130,14 +130,14 @@ public class GameManager : MonoBehaviour
         uIManager.OnExit = () => socketController.CloseSocket();
         socketController.ShowDisconnectionPopup = uIManager.DisconnectionPopup;
 
-        for (int i = 0; i < 5; i++)
-        {
-            for (int j = 0; j < 3; j++)
-            {
-                arthurFP.slotMatrix[i].slotImages[j].id = slotManager.slotMatrix[i].slotImages[j].id;
-                arthurFP.slotMatrix[i].slotImages[j].iconImage.sprite = slotManager.slotMatrix[i].slotImages[j].iconImage.sprite;
-            }
-        }
+        // for (int i = 0; i < 5; i++)
+        // {
+        //     for (int j = 0; j < 3; j++)
+        //     {
+        //         arthurFP.slotMatrix[i].slotImages[j].id = slotManager.slotMatrix[i].slotImages[j].id;
+        //         arthurFP.slotMatrix[i].slotImages[j].iconImage.sprite = slotManager.slotMatrix[i].slotImages[j].iconImage.sprite;
+        //     }
+        // }
 
         socketController.OpenSocket();
 
@@ -528,14 +528,6 @@ public class GameManager : MonoBehaviour
             StopSpinButton.gameObject.SetActive(true);
         var spinData = new { data = new { currentBet = betCounter, currentLines = 20, spins = 1 }, id = "SPIN" };
         socketController.SendData("message", spinData);
-
-        // if (playBeforeStart)
-        // {
-        //     OnSpinStart?.Invoke();
-        //     if (delay1 > 0)
-        //         yield return new WaitForSeconds(delay1);
-
-        // }
 
         yield return slotManager.StartSpin(turboMode, ImmediateStop);
         slotManager.shuffleInitialMatrix();
