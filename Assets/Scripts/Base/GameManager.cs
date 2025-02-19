@@ -533,6 +533,7 @@ public class GameManager : MonoBehaviour
         slotManager.shuffleInitialMatrix();
         slotManager.CLearAllCoins();
         yield return new WaitUntil(() => SocketController.isResultdone);
+        currentBalance = SocketModel.playerData.Balance;
         if (!playBeforeStart)
         {
             OnSpinStart?.Invoke();
@@ -548,7 +549,6 @@ public class GameManager : MonoBehaviour
 
         // slotManager.StopIconAnimation();
         slotManager.PopulateSLotMatrix(SocketModel.resultGameData.ResultReel, SocketModel.resultGameData.frozenIndices);
-        currentBalance = SocketModel.playerData.Balance;
 
         if (playBeforeEnd)
         {
