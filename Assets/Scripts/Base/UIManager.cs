@@ -123,7 +123,7 @@ public class UIManager : MonoBehaviour
 
     Tweener normalWinTween;
 
-
+    Tween textTween;
     private void Awake()
     {
         //if (spalsh_screen) spalsh_screen.SetActive(true);
@@ -200,6 +200,8 @@ public class UIManager : MonoBehaviour
 
     internal void UpdatePlayerInfo(PlayerData playerData)
     {
+
+        textTween?.Kill();
         playerCurrentWinning.text = playerData.currentWining.ToString("f3");
         playerBalance.text = playerData.Balance.ToString("f3");
 
@@ -421,13 +423,12 @@ public class UIManager : MonoBehaviour
     internal void DeductBalanceAnim(double finalAmount, double initAmount)
     {
 
-        DOTween.To(() => initAmount, (val) => initAmount = val, finalAmount, 0.8f).OnUpdate(() =>
+        textTween=DOTween.To(() => initAmount, (val) => initAmount = val, finalAmount, 0.8f).OnUpdate(() =>
         {
             playerBalance.text = initAmount.ToString("f3");
 
         }).OnComplete(() =>
         {
-
             playerBalance.text = finalAmount.ToString("f3");
         });
     }
